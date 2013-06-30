@@ -1,0 +1,53 @@
+#!/bin/sh -e
+
+if [ $(id -u) -eq 0 ]; then
+    echo "I'll ask you when I think I need root permissions, ok?" >&2
+    exit 1
+fi
+
+if [ "$(uname)" != OpenBSD  ]; then
+    echo 'This bootstrap script is meant for OpenBSD.' >&2
+    exit 1
+fi
+
+if ! cd /usr/cruxports/core/pkgutils; then
+    cat << EOF >&2
+You have to run ./bootstrap from the directory
+/usr/cruxports/core/pkgutils or else I will get confused.
+EOF
+fi
+
+echo "Setting the right permissions for the portsdir."
+sudo chown -R ${USER}:wheel /usr/cruxports
+
+echo installing pkgutils
+gcc -Wall pkgfootprint.c -o pkgfootprint
+sudo install -m 755 -d                    /usr/local/bin
+sudo install -m 755 pkgadd                /usr/local/bin
+sudo install -m 755 pkgrm                 /usr/local/bin
+sudo install -m 755 pkginfo               /usr/local/bin
+sudo install -m 755 pkgmk                 /usr/local/bin
+sudo install -m 755 pkgmk.buildwrapper    /usr/local/bin
+sudo install -m 755 pkgfootprint          /usr/local/libexec
+
+
+echo "Creating work directories."
+sudo install -d -g wheel -o $USER /usr/pkgmk/{source,package,work}
+
+echo "Creating database directory."
+sudo install -d /var/package/rejects
+
+[ -e /etc/pkgadd.conf ] || sudo install -m 644 pkgadd.conf           /etc/pkgadd.conf
+[ -e /etc/pkgmk.conf ]  || sudo install -m 644 pkgmk.conf            /etc/pkgmk.conf
+[ -e /etc/systrace/usr_local_bin_pkgmk_buildwrapper ] || \
+    sudo install -m 644 pkgmk.systrace.filter /etc/systrace/usr_local_bin_pkgmk_buildwrapper
+
+echo 'building the first port! pkgutils!'
+pkgmk -f
+echo 'Adding it...'
+sudo pkgadd -f /usr/pkgmk/package/pkgutils*.pkg.tar.gz
+echo "Setting the right permissions on the builddir."
+sudo chown    ${USER}:wheel /usr/pkgmk/*
+
+echo "Congratulations, you have got cruxports installed."
+echo "And you won't even have to reboot. ;-)"

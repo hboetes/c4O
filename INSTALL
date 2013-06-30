@@ -1,0 +1,48 @@
+First of all, you have to unpack the cruxports_for_openbsd.tar.gz
+tarball in /
+
+    sudo tar xzf cruxports_for_openbsd.tar.gz -C /
+
+
+After that you can build and install pkgutils with the ./bootstrap
+script.
+
+    cd /usr/cruxports/core/pkgutils
+    ./bootstrap
+
+
+After running ./bootstrap I recommend you install the prt-get
+port.
+
+    cd /usr/cruxports/core/prt-get
+    pkgmk -i
+
+
+And then all the other ports in the core directory but first the
+bzip2 and m4 package. You can safely ignore warnings from prt-get
+about missing directories. We'll fix that later on.
+
+    cd /usr/cruxports/core/
+    prt-get install bzip2 m4 *
+
+
+And after installing the ports port you can fetch the whole
+ports-tree with:
+
+    ports -u
+
+
+And now you can install vorbis-tools like this:
+
+    prt-get deptree vorbis-tools
+    prt-get depinst vorbis-tools
+
+
+BTW this is what I have in my sudoers file.  Use visudo(8) to get
+it there.
+
+han     ALL=(ALL)   PASSWD:   ALL
+han     ALL=(ALL)   NOPASSWD: \
+	/usr/local/bin/pkgadd, \
+	/usr/local/bin/pkgrm, \
+	/bin/systrace -eia -f /etc/systrace/usr_local_bin_pkgmk_buildwrapper pkgmk.buildwrapper -[brsgc] *

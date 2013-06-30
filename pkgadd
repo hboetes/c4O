@@ -1,0 +1,417 @@
+#!/bin/sh
+# $Id: pkgadd,v 1.23 2012/05/31 10:39:00 han Exp $
+# Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
+
+# Permission to use, copy, modify, and distribute this software
+# for any purpose with or without fee is hereby granted, provided
+# that the above copyright notice and this permission notice
+# appear in all copies.
+
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+# WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+# AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
+# CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+# NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+# CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+# Make sure we're not tricked into using the wrong binaries.
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+
+version=0.1
+# Name of the script.
+n=${0##*/}
+
+# Configuration-file for pkgadd.
+pkgadd_conf=/etc/pkgadd.conf
+
+# Unset variables which may be used uninitialized, prevent
+# influence from environment.
+unset root package version release pattern FORCE UPGRADE
+
+
+# From OpenBSD /etc/rc
+stripcom()
+{
+    local _file="$1"
+    local _line
+    if [ -r "$_file" ]; then
+	{
+	    while read _line ; do
+		_line=${_line%%#*}
+		[ -n "$_line" ] && echo $_line
+	    done
+	} < $_file
+    fi
+}
+
+
+mktempfiles()
+{
+    # Make tempfiles.
+    DIR=$(mktemp -d /tmp/pkgutils.XXXXXXXXXX) || exit 1
+    TMP1=$DIR/tmp1
+    filesnewpackage=$DIR/filesnewpackage
+    filesoldpackage=$DIR/filesoldpackage
+    dirsoldpackage=$DIR/dirsoldpackage
+    dirsnewpackage=$DIR/dirsnewpackage
+
+    # Put files and dirs in sepperate files.
+    tar tvzf $path_package | egrep -v "(	var/package|	var$)" > $TMP1
+    awk '/^[^d]/ {print $9}' $TMP1 > $filesnewpackage
+    awk '/^d/    {print $9}' $TMP1 > $dirsnewpackage
+
+    if [ -e $dbase/$name-footprint ]; then
+	awk -F '\t' '/^[^d]/ {print $3}' $dbase/$name-footprint > $filesoldpackage
+	awk -F '\t' '/^d/    {print $3}' $dbase/$name-footprint > $dirsoldpackage
+    fi
+
+    # remove them in any way the program exits.
+    trap 'rm -rf $DIR' 0 1 2 3 13 15
+}
+
+#  Support various errorcodes so pkgmk can use them.
+error()
+{
+    exitcode=$1
+    shift
+    echo "$n: $@" >&2
+    exit $exitcode
+}
+
+
+message()
+{
+    echo "$n: $@"
+}
+
+isinstalled()
+{
+    [ -e $dbase/$1-footprint ]
+    return $?
+}
+
+find_conflicts()
+{
+    (
+	# Put the footprint of this package ...
+	cat $filesnewpackage
+	# ... and all the footprints of all _other_ packages in
+	# the dbase on stdout.  /dev/null on the end is an empty
+	# file incase there are no packages installed.
+	awk -F '\t' '/^[^d]/ {print $3}' $(find $dbase -name '*-footprint' ! -name "$name-footprint") /dev/null
+    ) | sort | uniq -d > $TMP1
+
+    if [ -s $TMP1 ]; then
+	cat $TMP1 | while read line; do
+	    if [ -z "$FORCE" ]; then
+		pkginfo -o $line || error 'aborting.'
+	    else
+		# Remove the conflicting line from the database.
+		# Make sure that's a "TAB$line$"
+		footprint=$(grep -l "	$line$" $dbase/*-footprint)
+		grep -v "	$line$" $footprint > $footprint.tmp
+		mv $footprint.tmp $footprint
+	    fi
+	done
+	if [ -z "$FORCE" ]; then
+	    error 12 "These files are conflicting. Use $n -f to force install"
+	else
+	    message "Unregistered conflicting files."
+	fi
+    fi
+}
+
+
+version()
+{
+    message "(pkgutils) $version"
+}
+
+verifypackage()
+{
+    if [ ! -f "$1" ]; then
+	error 1 "\`$1' does not exist or is not a regular file."
+    fi
+    if ! file -b $1| grep -q 'gzip compressed data, from Unix'; then
+	error 1 "\`$1' is not a .tar.gz file."
+    fi
+    # strip path
+    path_package=$1
+    package=${1##*/}
+    if [ $package = $path_package ]; then
+	path_package=$PWD/$package
+    fi
+    # strip everything from #
+    version_release_extension=${package##*\#}
+    version_release=${version_release_extension%.pkg.tar.gz}
+    name=${package%\#*}
+    version=${version_release_extension%-*}
+    release=${version_release##*-}
+    [ -z "$name"    ] && error 1 "no packagename defined in \`$package'"
+    [ -z "$version" ] && error 1 "no versionnumber defined in \`$package'"
+    [ -z "$release" ] && error 1 "no releasenumber defined in \`$package'"
+    # Checking for metadata-files is too timeconsuming. Also lets
+    # create them at install if they don't exist for portability
+    # sake.
+}
+
+
+makepattern()
+{
+    unset pattern
+    if [ -r $root/$pkgadd_conf ]; then
+	pkgadd_conf=$root/$pkgadd_conf
+    else
+	echo -n "Warning: no $root/$pkgadd_conf found. " >&2
+	if [ -r $pkgadd_conf ]; then
+	    pkgadd_conf=$pkgadd_conf
+	    echo "Using $pkgadd_conf." >&2
+	else
+	    echo
+	    return 1
+	fi
+    fi
+
+    set -- $(stripcom $pkgadd_conf)
+    while [ $# -gt 0 ]; do
+	# Add other keywords, like `DENY'? TODO
+	case $1 in
+	    UPGRADE)
+		;;
+	    *)
+		error 1 "Illegal pattern in $pkgadd_conf"
+		;;
+	esac
+
+	# YES patterns MUST precede NO patterns.
+	case $3 in
+	    YES)
+		pattern=" -s |$2|&| $pattern"
+		;;
+	    NO)
+		pattern="$pattern -s |$2|$rejects/$name/&|"
+		;;
+	    *)
+		error 1 "Illegal pattern in $pkgadd_conf"
+		;;
+	esac
+	shift 3
+    done
+}
+
+
+removeoldfiles()
+{
+    # This function removes files/dirs found in the old footprint,
+    # but not in the new one.
+    cat $filesnewpackage $filesoldpackage | sort | uniq -u | sed -e 's|\(.*\)|^\1$|' > $TMP1
+    if [ -s $TMP1 ]; then
+	grep -f $TMP1 $filesoldpackage | xargs -r -I % rm -f "${root:=/}%"
+    fi
+    cat $dirsnewpackage $dirsoldpackage | sort | uniq -u | sed -e 's|\(.*\)|^\1$|' > $TMP1
+    if [ -s $TMP1 ]; then
+	grep -f $TMP1 $dirsoldpackage | xargs -r -I % rmdir -p "${root:=/}%" > /dev/null 2>&1
+    fi
+}
+
+
+tarcommand()
+{
+    if [ $(id -u) -eq 0 ]; then
+	# Remove old rejects from previous installs.
+	rm -rf $rejects/$name
+	tar $pattern -zxpf $1 -C ${root:=/}
+    else
+	error 1 "Only root can add packages."
+    fi
+}
+
+installrejects()
+{
+    (
+	unset unrejected
+	cd $rejects/$name 2> /dev/null || return 1
+	for i in $(find . ! -type d); do
+	    j=${i#./}
+	    if cmp -s "${root:=/}$j" "$j"; then
+		rm "$j"
+	    fi
+
+	    if [ ! -e "${root:=/}$j" ] && grep -q "^$j$" $filesnewpackage; then
+		# Workaround files with spaces.
+		k="echo $j | sed -e 's| |\\ |g'"
+		unrejected="$unrejected $k"
+	    fi
+	done
+	if [ -n "$unrejected" ]; then
+	    rm -f $unrejected
+	    tar -zxpf $path_package -C ${root:=/} $unrejected
+	fi
+	# Remove all empty dirs in $rejects.
+	find $rejects -depth -type d -print0| xargs -0 rmdir > /dev/null 2>&1
+	# Notice all rejects created by this port.
+	find $rejects/$name ! -type d > $TMP1
+	if [ -s $TMP1 ]; then
+	    message 'Notice: These files got rejected. Use rejmerge if you want to merge them.'
+	    cat $TMP1
+	fi
+    )
+}
+
+
+help()
+{
+    cat << EOF
+usage: $n [options] <file>
+options:
+  -u, --upgrade <file> upgrade package with the same name
+  -f, --force <file>   force install, overwrite conflicting files
+  -r, --root <path>    specify alternative installation root
+  -v, --version        print version and exit
+  -h, --help           print help and exit
+EOF
+}
+
+dbase()
+{
+    root=$1
+    dbase=$root/var/package
+    if [ ! -d $dbase ]; then
+	error "database directory $dbase not found."
+    fi
+}
+
+dbase
+
+while [ $# -gt 0 ]; do
+    case $1 in
+	-r|--root)
+	    [ -z $2 ] && error 1 "option \`$1' requires an argument."
+	    dbase $2
+	    shift 2
+	    ;;
+	-f|--force)
+	    FORCE=true
+	    shift
+	    ;;
+	-u|--upgrade)
+	    UPGRADE=true
+	    shift
+	    ;;
+	-v|--version)
+	    version
+	    exit 0
+	    ;;
+	-h|--help)
+	    help
+	    exit 0
+	    ;;
+	-i|--install)
+	    shift
+	    ;;
+	-*)
+	    error 1 "Illegal option: $1"
+	    ;;
+	*)
+	    [ -n "$2" ] && error 1 "packagename must be the last argument."
+	    verifypackage $1
+	    shift
+	    ;;
+    esac
+done
+
+rejects=$dbase/rejects
+
+if [ ! -d $dbase ]; then
+    error 1 "database directory \`$dbase' not found."
+fi
+
+
+# Should be defined over here.
+if [ -z "$name" ]; then
+    help
+    exit 1
+fi
+
+mktempfiles
+# also removes conflicts
+find_conflicts
+
+if [ "$UPGRADE" = true ]; then
+    if isinstalled $name; then
+	makepattern
+	# Only usefull for packages without metadata.
+	rm -f $dbase/$name-metadata
+	tarcommand $path_package
+	# Only now remove the old files. TODO; ponder on this a
+	# bit more, because of libs.
+	removeoldfiles
+    else
+	error 10 "package \`$name' not previously installed (skip -u to install)"
+    fi
+else
+    if ! isinstalled $name ; then
+	unset pattern
+	tarcommand $path_package
+    else
+	error 11 "package \`$name' is installed, use $n -u to upgrade."
+    fi
+fi
+
+installrejects
+
+# Install metadata if it's missing.
+if [ ! -f $dbase/$name-metadata ]; then
+    cat << EOF > $dbase/$name-metadata
+name=$name
+version=$version
+release=$release
+EOF
+else
+    . $dbase/$name-metadata
+fi
+
+# Add footprint to the database.
+pkginfo -f "$path_package"  > $dbase/$name-footprint || error 'aborting.'
+
+# Run ldconfig if the package contains libraries.
+fgrep -q '\.so' $dbase/$name-footprint && ldconfig -R
+
+# Auto post-install infopages in base.
+for i in $(grep '^usr/share/info/[^-]*$' $filesnewpackage); do
+    # message "adding ${i##*/} info-entry."
+    /usr/bin/install-info $root/$i $root/usr/share/info/dir
+done
+
+# Auto post-install infopages in packages.
+for i in $(grep '^usr/local/info/[^-]*$' $filesnewpackage); do
+    # message "adding ${i##*/} info-entry."
+    /usr/bin/install-info $root/$i $root/usr/local/info/dir
+done
+
+# Auto post-install for tex packages
+if grep -q '^usr/local/share/texmf/' $filesnewpackage; then
+    mktexlsr /usr/local/share/texmf/
+fi
+
+# TODO, make this a configurable function.
+# Only run post-install if it exists.
+typeset -f post-install > /dev/null || exit 0
+
+message "Request to execute these commands with root permissions:"
+print '\001\033[31m\001'
+typeset -f post-install
+print '\001\033[0m\001'
+print -n '\aRun this post-install script? [y/N] '
+read answer
+case $answer in
+    y*|Y*)
+	post-install
+	exit $?
+	;;
+    *)
+	exit 1
+	;;
+esac

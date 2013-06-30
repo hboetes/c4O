@@ -1,0 +1,172 @@
+#!/bin/sh
+# $Id: pkginfo,v 1.13 2012/05/31 10:39:00 han Exp $
+# Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
+
+# Permission to use, copy, modify, and distribute this software
+# for any purpose with or without fee is hereby granted, provided
+# that the above copyright notice and this permission notice
+# appear in all copies.
+
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+# WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+# AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
+# CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+# NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+# CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+# Make sure we're not tricked into using the wrong binaries.
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+
+version=0.1
+bsd_tar=tar
+
+# TODO: This wont work of course.
+unset root
+
+n=${0##*/}
+
+mktempfiles()
+{
+    DIR=$(mktemp -d /tmp/pkgutils.XXXXXXXXXX) || exit 1
+    TMP1=$DIR/tmp1
+    trap 'rm -rf $DIR' 0 1 2 3 13 15
+}
+
+error()
+{
+    echo "$n: $@" >&2
+    exit 1
+}
+
+message()
+{
+    echo "$n: $@"
+}
+
+footprint()
+{
+    mktempfiles
+    # The sed statement removes the destination part of a
+    # symlink. Otherwise we can't remove symlinks later on.
+    $bsd_tar tzvf $1 | /usr/local/libexec/pkgfootprint | sed -e 's| -> .*||' > $TMP1 || error 'something went really wrong.'
+    # * Only remove the /var entry if it is caused by
+    #   var/package/$name-metadata
+    #
+    # * Make sure there are tabs in that grep statement.
+    if [ $(grep '	var' $TMP1|wc -l) -eq 3 ]; then
+	grep -v '	var' $TMP1
+    else
+	grep -v '	var/package' $TMP1
+    fi
+}
+
+installed()
+{
+    if [ -n "$1" ]; then
+	if [ -r "$dbase/$1-metadata" ]; then
+	    . $dbase/$1-metadata
+	    echo $name-$version-$release
+	else
+	    error "\`$1' is not an installed package."
+	fi
+    else
+	# This looks inefficient, but it works pretty fast.
+	for i in $dbase/*-metadata; do
+	    . $i
+	    echo $name-$version-$release
+	done
+    fi
+}
+
+owner()
+{
+    mktempfiles
+    filename=${1#/}
+    # TODO: add 2> /dev/null?
+    fgrep "$filename" $dbase/*-footprint > $TMP1 # 2> /dev/null
+    if [ -s $TMP1 ]; then
+	sed -e "s|^$dbase/\(.*\)-footprint:|\1	|" $TMP1
+    else
+	error "no owner(s) found."
+    fi
+}
+
+list()
+{
+    if [ -r "$dbase/$1-footprint" ]; then
+	cat $dbase/$1-footprint
+    else
+	error "\`$1' is neither an installed package nor a package file."
+    fi
+}
+
+version()
+{
+    message "pkginfo (pkgutils) $version"
+}
+
+help()
+{
+    cat << EOF
+usage: $n [options]
+options:
+  -i, --installed             list installed packages
+  -l, --list <package|file>   list files in <package> or <file>
+  -o, --owner <pattern>       list owner(s) of file(s) matching <pattern>
+  -f, --footprint <file>      print footprint for <file>
+  -r, --root <path>           specify alternative installation root
+  -v, --version               print version and exit
+  -h, --help                  print help and exit
+EOF
+}
+
+# typeset -ft owner
+
+dbase()
+{
+    root=$1
+    dbase=$root/var/package
+    if [ ! -d $dbase ]; then
+	error "database directory $dbase not found."
+    fi
+}
+
+dbase
+
+case $1 in
+    -r|--root)
+	[ -z $2 ] && error "option $1 requires an argument."
+	dbase $2
+	;;
+    -i|--installed)
+	installed $2
+	;;
+    -l|--list)
+	[ -z $2 ] && error "option $1 requires an argument."
+	list $2
+	;;
+    -o|--owner)
+	[ -z $2 ] && error "option $1 requires an argument."
+	owner $2
+	;;
+    -f|--footprint)
+	[ -z $2 ] && error "option $1 requires an argument."
+	footprint $2
+	;;
+    -v|--version)
+	version
+	;;
+    -h|--help)
+	help
+	;;
+    '')
+	error "missing option"
+	;;
+    *)
+	error "invalid option $1"
+	;;
+esac
+
+exit 0

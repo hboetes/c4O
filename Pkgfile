@@ -1,0 +1,56 @@
+# Maintainer:  Han Boetes <hboetes@gmail.com>
+# Packager:    Han Boetes <hboetes@gmail.com>
+# Description: utilities to manage cruxports
+# URL:         http://www.xs4all.nl/~hanb/software/c4o/
+
+name=pkgutils
+version=0.1
+release=1
+source="
+    pkgadd
+    pkgadd.8.in
+    pkgadd.conf
+    pkgfootprint.c
+    pkginfo
+    pkginfo.8.in
+    pkgmk
+    pkgmk.8.in
+    pkgmk.buildwrapper
+    pkgmk.conf
+    pkgmk.systrace.filter
+    pkgrm
+    pkgrm.8.in
+    rejmerge
+    rejmerge.8.in
+    rejmerge.conf
+"
+
+build()
+{
+    gcc -Wall -Werror $CFLAGS pkgfootprint.c -o pkgfootprint
+    # binaries
+    install -d $PKG/usr/local/bin $PKG/usr/local/libexec
+    install -m 755 $SRC/pkgmk.buildwrapper $PKG/usr/local/bin
+    install -m 755 $SRC/pkgmk              $PKG/usr/local/bin
+    install -m 755 $SRC/rejmerge           $PKG/usr/local/bin
+    install -m 755 $SRC/pkgadd             $PKG/usr/local/bin
+    install -m 755 $SRC/pkgrm              $PKG/usr/local/bin
+    install -m 755 $SRC/pkginfo            $PKG/usr/local/bin
+    install -m 755 $SRC/pkgfootprint       $PKG/usr/local/libexec
+    # manpages
+    install -d $PKG/usr/local/man/man8
+    for i in *.[0-9].in; do
+	sed -e "s|#VERSION#|$version|" $i > $PKG/usr/local/man/man8/${i%.in}
+    done
+    # configs
+    install -d $PKG/etc/systrace/
+    install -m 444 $SRC/pkgmk.systrace.filter \
+        $PKG/etc/systrace/usr_local_bin_pkgmk_buildwrapper
+    install -m 644 $SRC/pkgadd.conf    $PKG/etc
+    install -m 644 $SRC/pkgmk.conf     $PKG/etc
+    install -m 644 $SRC/rejmerge.conf  $PKG/etc
+    # workdir
+    install -d $PKG/usr/pkgmk/{source,package,work}
+    # dbase dir
+    install -d $PKG/var/package/rejects
+}

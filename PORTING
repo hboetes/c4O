@@ -1,0 +1,36 @@
+Most stuff for cruxports is documented on crux.nu but there are
+some specific differences which you have to take in account if you
+want to port a cruxport to OpenBSD.
+
+The Linux-version of cruxports use arrays; variables that are
+defined like this:
+
+     var=(foo bar)
+
+On OpenBSD you'll have to use:
+
+    var="foo bar"
+
+
+The prefix on Linux is /usr, on OpenBSD /usr/local is used.
+
+
+There are often OpenBSD specific patches which can be found in the
+/usr/ports ports-tree. I usually use them as well, like this:
+
+    cd /usr/cruxports/somedir/someport
+    cat /usr/ports/*/someport/patch/patch-* > someport.patch
+
+I always check the patch though. It may contain ports specific
+changes.
+
+And then in the Pkgfile I add: ``someport.patch'' to the
+``source-variable'' and ``patch -p0 < $SRC/someport.patch'' to the
+build instructions.
+
+
+Cruxports on OpenBSD has two extra functions which you can use in the build-function:
+
+   sed-i, which imitates the sed -i function supported by gnu-sed.
+
+   remove_perl_crap, which removes useless files from perl-ports.

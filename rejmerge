@@ -1,0 +1,280 @@
+#!/bin/sh
+#
+#  rejmerge (pkgutils)
+#
+#  Copyright (c) 2005 Per Liden
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License as
+#  published by the Free Software Foundation; either version 2 of
+#  the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public
+#  License along with this program; if not, write to the Free
+#  Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+#  MA 02111-1307, USA.
+#
+
+info_n()
+{
+    echo -n "=======> $1"
+}
+
+info()
+{
+    info_n "$1"
+    echo
+}
+
+interrupted()
+{
+    echo
+    info "Aborted."
+    exit 1
+}
+
+atexit()
+{
+    if [ -f "$TMPFILE" ]; then
+	rm -f "$TMPFILE"
+    fi
+}
+
+rejmerge_diff()
+{
+    diff -up "$1" "$2" > "$3"
+}
+
+rejmerge_merge()
+{
+    echo "Use \`h' for usage."
+    echo "left: $1 | right: $2"
+    sdiff -o "$3" -W --text --suppress-common-lines "$1" "$2"
+}
+
+merge_menu()
+{
+    rejmerge_merge "$1" "$2" "$TMPFILE"
+
+    while :; do
+	info "Merged $1"
+	$PAGER "$TMPFILE"
+
+	if [ "$REJMERGE_MERGE_INFO" ]; then
+	    info "$REJMERGE_MERGE_INFO"
+	    unset REJMERGE_MERGE_INFO
+	fi
+
+	while :; do
+	    info_n "[I]nstall [E]dit [V]iew [S]kip? "
+	    read CMD
+	    echo
+
+	    case "$CMD" in
+		i|I)
+		    # Keep permissions
+		    $SUDO sh -c "cat $TMPFILE > $1"
+		    $SUDO rm -f "$2"
+		    break 2
+		    ;;
+		e|E)
+		    $EDITOR "$TMPFILE"
+		    break 1
+		    ;;
+		v|V) break 1 ;;
+		s|S) break 2 ;;
+	    esac
+	done
+    done
+
+    : > "$TMPFILE"
+}
+
+diff_menu()
+{
+    rejmerge_diff "$1" "$2" "$TMPFILE"
+
+    while :; do
+	info "$1"
+	$PAGER "$TMPFILE"
+	while :; do
+	    info_n "[K]eep [U]pgrade [M]erge [D]iff [S]kip? "
+	    read CMD
+	    echo
+
+	    case "$CMD" in
+		k|K)
+		    $SUDO rm -f "$2"
+		    break 2
+		    ;;
+		u|U)
+		    $SUDO sh -c "cat $2 > $1"
+		    break 2
+		    ;;
+		m|M)
+		    merge_menu "$1" "$2"
+		    break 2
+		    ;;
+		d|D)
+		    break 1
+		    ;;
+		s|S)
+		    break 2
+		    ;;
+	    esac
+	done
+    done
+
+    : > "$TMPFILE"
+}
+
+file_menu()
+{
+    while :; do
+	info "$1"
+	file "$1" "$2"
+	while :; do
+	    info_n "[K]eep [U]pgrade [D]iff [S]kip? "
+	    read CMD
+	    echo
+
+	    case "$CMD" in
+		k|K)
+		    $SUDO rm -f "$2"
+		    break 2
+		    ;;
+		u|U)
+		    $SUDO sh -c "$2 > $1"
+		    break 2
+		    ;;
+		d|D)
+		    break 1
+		    ;;
+		s|S)
+		    break 2
+		    ;;
+	    esac
+	done
+    done
+}
+
+print_help()
+{
+    cat << EOF
+usage: $REJMERGE_COMMAND [options]
+options:
+  -r,   --root <path>         specify alternative root
+  -v,   --version             print version and exit
+  -h,   --help                print help and exit
+EOF
+}
+
+parse_options()
+{
+    while [ "$1" ]; do
+	case $1 in
+	    -r|--root)
+		if [ -z "$2" ]; then
+		    echo "$REJMERGE_COMMAND: option $1 requires an argument"
+		    exit 1
+		fi
+		if [ ! -d "$2" ]; then
+		    echo "$REJMERGE_COMMAND: root directory $2 doesn't exist or is no directory."
+		    exit 1
+		fi
+		REJMERGE_ROOT="$2"
+		REJMERGE_CONF="$2$REJMERGE_CONF"
+		REJECTED_DIR="$2$REJECTED_DIR"
+		shift ;;
+	    -v|--version)
+		echo "$REJMERGE_COMMAND (pkgutils) $REJMERGE_VERSION"
+		exit 0 ;;
+	    -h|--help)
+		print_help
+		exit 0 ;;
+	    *)
+		echo "$REJMERGE_COMMAND: invalid option $1"
+		exit 1 ;;
+	esac
+	shift
+    done
+
+    if [ ! -d "$REJECTED_DIR" ]; then
+	echo "$REJMERGE_COMMAND: $REJECTED_DIR not found"
+	exit 1
+    fi
+}
+
+main()
+{
+    parse_options "$@"
+
+    if [ $(id -u) -eq 0 ]; then
+	echo "$REJMERGE_COMMAND: don't merge rejected files as root"
+	exit 1
+    fi
+
+    # Read configuration
+    if [ -f "$REJMERGE_CONF" ]; then
+	. "$REJMERGE_CONF"
+    fi
+
+    REJECTED_FILES_FOUND=no
+
+    # Check regular files
+    for REJECTED_FILE in $(find $REJECTED_DIR -type f); do
+	clear
+	INSTALLED_FILE="${REJECTED_FILE##$REJECTED_DIR}"
+	INSTALLED_FILE="${REJMERGE_ROOT:=/}${INSTALLED_FILE#/*/}"
+	if [ ! -e "$INSTALLED_FILE" ] || cmp -s "$INSTALLED_FILE" "$REJECTED_FILE"; then
+	    $SUDO rm -f "$REJECTED_FILE"
+	else
+	    REJECTED_FILES_FOUND=yes
+	    diff_menu "$INSTALLED_FILE" "$REJECTED_FILE"
+	fi
+    done
+
+    # Check non-regular files
+    for REJECTED_FILE in $(find $REJECTED_DIR ! -type d ! -type f); do
+	clear
+	INSTALLED_FILE="${REJECTED_FILE##$REJECTED_DIR}"
+	INSTALLED_FILE="${REJMERGE_ROOT:=/}${INSTALLED_FILE#/*/}"
+ 	if [ ! -e "$INSTALLED_FILE" ]; then
+	    $SUDO rm -f "$REJECTED_FILE"
+	else
+	    REJECTED_FILES_FOUND=yes
+	    file_menu "$INSTALLED_FILE" "$REJECTED_FILE"
+	fi
+    done
+
+    # Remove empty directories
+    $SUDO find $REJECTED_DIR -mindepth 1 -depth -empty -exec rmdir {} \;
+
+    if [ "$REJECTED_FILES_FOUND" = no ]; then
+	echo "Nothing to merge"
+    fi
+
+    exit 0
+}
+
+trap "interrupted" 1 2 3 13 15
+trap "atexit" 0
+
+export LC_ALL=POSIX
+
+readonly REJMERGE_VERSION="0.1"
+readonly REJMERGE_COMMAND="${0##*/}"
+unset REJMERGE_ROOT
+REJMERGE_CONF="/etc/rejmerge.conf"
+REJECTED_DIR="/var/package/rejects"
+PAGER=more
+SUDO=/usr/bin/sudo
+EDITOR=${EDITOR:-mg}
+TMPFILE=$(mktemp) || exit 1
+
+main "$@"
