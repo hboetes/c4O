@@ -27,7 +27,7 @@ sudo install -m 755 pkgadd                /usr/local/bin
 sudo install -m 755 pkgrm                 /usr/local/bin
 sudo install -m 755 pkginfo               /usr/local/bin
 sudo install -m 755 pkgmk                 /usr/local/bin
-sudo install -m 755 pkgmk.buildwrapper    /usr/local/bin
+sudo install -m 755 pkgmk.buildwrapper    /usr/local/libexec
 sudo install -m 755 pkgfootprint          /usr/local/libexec
 
 
@@ -39,8 +39,6 @@ sudo install -d /var/package/rejects
 
 [ -e /etc/pkgadd.conf ] || sudo install -m 644 pkgadd.conf           /etc/pkgadd.conf
 [ -e /etc/pkgmk.conf ]  || sudo install -m 644 pkgmk.conf            /etc/pkgmk.conf
-[ -e /etc/systrace/usr_local_bin_pkgmk_buildwrapper ] || \
-    sudo install -m 644 pkgmk.systrace.filter /etc/systrace/usr_local_bin_pkgmk_buildwrapper
 
 echo 'building the first port! pkgutils!'
 pkgmk -f

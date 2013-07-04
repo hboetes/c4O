@@ -29,7 +29,7 @@ build()
     gcc -Wall -Werror $CFLAGS pkgfootprint.c -o pkgfootprint
     # binaries
     install -d $PKG/usr/local/bin $PKG/usr/local/libexec
-    install -m 755 $SRC/pkgmk.buildwrapper $PKG/usr/local/bin
+    install -m 755 $SRC/pkgmk.buildwrapper $PKG/usr/local/libexec
     install -m 755 $SRC/pkgmk              $PKG/usr/local/bin
     install -m 755 $SRC/rejmerge           $PKG/usr/local/bin
     install -m 755 $SRC/pkgadd             $PKG/usr/local/bin

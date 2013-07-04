@@ -27,8 +27,7 @@ beep()
 
 wrap()
 {
-    # Perhaps limit to two arguments.
-    pkgmk.buildwrapper $*
+    /usr/local/libexec/pkgmk.buildwrapper $*
 }
 
 if touch /root/nop 2> /dev/null; then
