@@ -7,13 +7,13 @@
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
+#  the Free Software Foundation; either version 2 of the License, or (at
+#  your option) any later version.
 #
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
@@ -25,10 +25,10 @@ beep()
     echo -e '\a'
 }
 
-su_do()
+wrap()
 {
     # Perhaps limit to two arguments.
-    $SUDO /bin/systrace -eia -f /etc/systrace/usr_local_bin_pkgmk_buildwrapper pkgmk.buildwrapper $*
+    pkgmk.buildwrapper $*
 }
 
 if touch /root/nop 2> /dev/null; then
@@ -55,7 +55,7 @@ error()
 keep_work()
 {
     if [ "$PKGMK_KEEP_WORK" = no ]; then
-	su_do -r $PKGMK_WORK_DIR
+	wrap -r $PKGMK_WORK_DIR
     fi
 }
 
@@ -309,11 +309,11 @@ strip_files()
             *statically*)
                 : ;; # ignore
             *ELF*executable*not\ stripped)
-                su_do -s --strip-all "$FILE" ;;
+                wrap -s --strip-all "$FILE" ;;
             *ELF*shared*object*not\ stripped)
-                su_do -s --strip-unneeded "$FILE" ;;
+                wrap -s --strip-unneeded "$FILE" ;;
             *current*ar\ archive)
-                su_do -s --strip-debug "$FILE";;
+                wrap -s --strip-debug "$FILE";;
         esac
     done
 }
@@ -411,7 +411,7 @@ build_package()
     cd $PKGMK_ROOT
 
     if [ "$SHORTCIRCUIT" != yes ]; then
-	su_do -r $PKGMK_WORK_DIR
+	wrap -r $PKGMK_WORK_DIR
 	mkdir -p $SRC $PKG
 	if [ "$PKGMK_IGNORE_MD5SUM" = no ]; then
 	    check_md5sum
@@ -425,7 +425,7 @@ build_package()
     cd $SRC
     # required for cvs packages.
     export PKGMK_SOURCE_DIR
-    su_do -b $PKGMK_ROOT/$PKGMK_PKGFILE
+    wrap -b $PKGMK_ROOT/$PKGMK_PKGFILE
 
     if [ $? -eq 0 ]; then
 	if [ "$PKGMK_NO_STRIP" = no ]; then
@@ -437,10 +437,7 @@ build_package()
 
 	cd $PKG
 	info "Build result:"
-	# su_do -g $TARGET XXX
-	su_do -g $PKGMK_ROOT/$PKGMK_PKGFILE $PKGMK_PACKAGE_DIR
-        userid=$(id -u)
-        su_do -c $userid $TARGET
+	wrap -g $PKGMK_ROOT/$PKGMK_PKGFILE $PKGMK_PACKAGE_DIR
 
 	if [ $? = 0 ]; then
 	    BUILD_SUCCESSFUL=yes

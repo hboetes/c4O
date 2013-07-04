@@ -17,7 +17,6 @@ source="
     pkgmk.8.in
     pkgmk.buildwrapper
     pkgmk.conf
-    pkgmk.systrace.filter
     pkgrm
     pkgrm.8.in
     rejmerge
@@ -43,9 +42,7 @@ build()
 	sed -e "s|#VERSION#|$version|" $i > $PKG/usr/local/man/man8/${i%.in}
     done
     # configs
-    install -d $PKG/etc/systrace/
-    install -m 444 $SRC/pkgmk.systrace.filter \
-        $PKG/etc/systrace/usr_local_bin_pkgmk_buildwrapper
+    install -d $PKG/etc
     install -m 644 $SRC/pkgadd.conf    $PKG/etc
     install -m 644 $SRC/pkgmk.conf     $PKG/etc
     install -m 644 $SRC/rejmerge.conf  $PKG/etc
