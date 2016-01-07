@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/mksh
 # $Id: pkgadd,v 1.23 2012/05/31 10:39:00 han Exp $
 # Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
 
@@ -31,6 +31,7 @@ pkgadd_conf=/etc/pkgadd.conf
 unset root package version release pattern FORCE UPGRADE
 
 tab=$(printf '\t')
+tar=paxtar
 
 # From OpenBSD /etc/rc
 stripcom()
@@ -104,6 +105,9 @@ find_conflicts()
         awk -F '\t' '/^[^d]/ {print $3}' $(find $dbase -name '*-footprint' ! -name "$name-footprint") /dev/null
     ) | sort | uniq -d > $TMP1
 
+    # remove empty lines from $TMP1
+    sed -i '/^$/d'  $TMP1
+
     if [ -s $TMP1 ]; then
         cat $TMP1 | while read line; do
             if [ -z "$FORCE" ]; then
@@ -135,7 +139,7 @@ verifypackage()
     if [ ! -f "$1" ]; then
         error 1 "\`$1' does not exist or is not a regular file."
     fi
-    if ! file -b $1| grep -q 'gzip compressed data, from Unix'; then
+    if ! file -b $1| grep -q 'gzip compressed data'; then
         error 1 "\`$1' is not a .tar.gz file."
     fi
     # strip path

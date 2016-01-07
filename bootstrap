@@ -1,12 +1,12 @@
-#!/bin/sh -e
+#!/bin/mksh -e
 
 if [ $(id -u) -eq 0 ]; then
     echo "I'll ask you when I think I need root permissions, Ok?" >&2
     exit 1
 fi
 
-if [ "$(uname)" != OpenBSD  ]; then
-    echo 'This bootstrap script is meant for OpenBSD.' >&2
+if [ "$(uname)" != Linux  ]; then
+    echo 'This bootstrap script is meant for Linux.' >&2
     exit 1
 fi
 
@@ -18,10 +18,11 @@ EOF
 fi
 
 echo "Setting the right permissions for the portsdir."
-sudo chown -R ${USER}:wheel /usr/cruxports
+sudo chown -R ${USER}:root /usr/cruxports
 
 echo installing pkgutils
 gcc -Wall pkgfootprint.c -o pkgfootprint
+sudo install -d /usr/local/libexec
 sudo install -m 755 -d                    /usr/local/bin
 sudo install -m 755 pkgadd                /usr/local/bin
 sudo install -m 755 pkgrm                 /usr/local/bin
@@ -32,7 +33,7 @@ sudo install -m 755 pkgfootprint          /usr/local/libexec
 
 
 echo "Creating work directories."
-sudo install -d -g wheel -o $USER /usr/pkgmk/{source,package,work}
+sudo install -d -g root -o $USER /usr/pkgmk/source /usr/pkgmk/package /usr/pkgmk/work
 
 echo "Creating database directory."
 sudo install -d /var/package/rejects
@@ -45,7 +46,7 @@ pkgmk -f
 echo 'Adding it...'
 sudo pkgadd -f /usr/pkgmk/package/pkgutils*.pkg.tar.gz
 echo "Setting the right permissions on the builddir."
-sudo chown    ${USER}:wheel /usr/pkgmk/*
+sudo chown    ${USER}:root /usr/pkgmk/*
 
 echo "Congratulations, you have got cruxports installed."
 echo "And you won't even have to reboot. ;-)"
