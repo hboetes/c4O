@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/mksh
 # $Id: pkgadd,v 1.23 2012/05/31 10:39:00 han Exp $
 # Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
 
@@ -30,6 +30,7 @@ pkgadd_conf=/etc/pkgadd.conf
 # influence from environment.
 unset root package version release pattern FORCE UPGRADE
 
+tar=paxtar
 
 # From OpenBSD /etc/rc
 stripcom()
@@ -58,7 +59,7 @@ mktempfiles()
     dirsnewpackage=$DIR/dirsnewpackage
 
     # Put files and dirs in sepperate files.
-    tar tvzf $path_package | egrep -v "(	var/package|	var$)" > $TMP1
+    $tar tvzf $path_package | egrep -v "(	var/package|	var$)" > $TMP1
     awk '/^[^d]/ {print $9}' $TMP1 > $filesnewpackage
     awk '/^d/    {print $9}' $TMP1 > $dirsnewpackage
 
@@ -103,6 +104,9 @@ find_conflicts()
 	awk -F '\t' '/^[^d]/ {print $3}' $(find $dbase -name '*-footprint' ! -name "$name-footprint") /dev/null
     ) | sort | uniq -d > $TMP1
 
+    # remove empty lines from $TMP1
+    sed -i '/^$/d'  $TMP1
+
     if [ -s $TMP1 ]; then
 	cat $TMP1 | while read line; do
 	    if [ -z "$FORCE" ]; then
@@ -134,7 +138,7 @@ verifypackage()
     if [ ! -f "$1" ]; then
 	error 1 "\`$1' does not exist or is not a regular file."
     fi
-    if ! file -b $1| grep -q 'gzip compressed data, from Unix'; then
+    if ! file -b $1| grep -q 'gzip compressed data'; then
 	error 1 "\`$1' is not a .tar.gz file."
     fi
     # strip path
@@ -222,7 +226,7 @@ tarcommand()
     if [ $(id -u) -eq 0 ]; then
 	# Remove old rejects from previous installs.
 	rm -rf $rejects/$name
-	tar $pattern -zxpf $1 -C ${root:=/}
+	$tar $pattern -zxpf $1 -C ${root:=/}
     else
 	error 1 "Only root can add packages."
     fi
@@ -247,12 +251,12 @@ installrejects()
 	done
 	if [ -n "$unrejected" ]; then
 	    rm -f $unrejected
-	    tar -zxpf $path_package -C ${root:=/} $unrejected
+	    $tar -zxpf $path_package -C ${root:=/} $unrejected
 	fi
 	# Remove all empty dirs in $rejects.
 	find $rejects -depth -type d -print0| xargs -0 rmdir > /dev/null 2>&1
 	# Notice all rejects created by this port.
-	find $rejects/$name ! -type d > $TMP1
+	find $rejects/$name ! -type d > $TMP1 2> /dev/null
 	if [ -s $TMP1 ]; then
 	    message 'Notice: These files got rejected. Use rejmerge if you want to merge them.'
 	    cat $TMP1

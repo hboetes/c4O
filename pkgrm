@@ -1,5 +1,4 @@
-#!/bin/sh
-# $Id: pkgrm,v 1.10 2012/05/31 10:39:00 han Exp $
+#!/bin/mksh
 # Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
 
 # Permission to use, copy, modify, and distribute this software

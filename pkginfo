@@ -1,5 +1,4 @@
-#!/bin/sh
-# $Id: pkginfo,v 1.13 2012/05/31 10:39:00 han Exp $
+#!/bin/mksh
 # Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
 
 # Permission to use, copy, modify, and distribute this software
@@ -20,7 +19,7 @@
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 version=0.1
-bsd_tar=tar
+bsd_tar=paxtar
 
 # TODO: This wont work of course.
 unset root
@@ -50,7 +49,7 @@ footprint()
     mktempfiles
     # The sed statement removes the destination part of a
     # symlink. Otherwise we can't remove symlinks later on.
-    $bsd_tar tzvf $1 | /usr/local/libexec/pkgfootprint | sed -e 's| -> .*||' > $TMP1 || error 'something went really wrong.'
+    $bsd_tar tzvf $1 | awk '{print $1"\t"$3"/"$4"\t"$9}' | sed -e 's| -> .*||' > $TMP1 || error 'something went really wrong.'
     # * Only remove the /var entry if it is caused by
     #   var/package/$name-metadata
     #
