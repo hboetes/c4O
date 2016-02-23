@@ -1,0 +1,15 @@
+5bf4053ff5bf9a3bee1484be2d9d41ba  pkgadd
+a0f1be7acad812fb297336bc98b716ca  pkgadd.8.in
+2a59f3d0d32ebe6ea0aa7807972e6ae7  pkgadd.conf
+33132cac593613ceb98a81d1a1c6a860  pkgfootprint.c
+e0f3a35786ce9977b985d445d1b9bfe8  pkginfo
+7e976238502d098c016b5d03ca5eb571  pkginfo.8.in
+a5c1bf7d448a29bdcfa70ff6a895a166  pkgmk
+e1de957573da9dc327b15ff8d8baf1e6  pkgmk.8.in
+eff601d25c9faec2560f84817fb28481  pkgmk.buildwrapper
+43ef62cd693980196f19e25218629447  pkgmk.conf
+24b1636c208284f1ce5566409b5a7e55  pkgrm
+b9367ea84cf250af9d50928c3051ef3d  pkgrm.8.in
+35bd08b46d4790193fcc549fb6d6e4d6  rejmerge
+7b1c6ccce10f4646661857bf8b809a2d  rejmerge.8.in
+a031b9f70540b1566e99a2d7874bc98a  rejmerge.conf
