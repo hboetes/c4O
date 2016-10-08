@@ -144,9 +144,9 @@ verifypackage()
 	path_package=$PWD/$package
     fi
     # strip everything from #
-    version_release_extension=${package##*\#}
+    version_release_extension=${package##*_}
     version_release=${version_release_extension%.pkg.tar.gz}
-    name=${package%\#*}
+    name=${package%_*}
     version=${version_release_extension%-*}
     release=${version_release##*-}
     [ -z "$name"    ] && error 1 "no packagename defined in \`$package'"

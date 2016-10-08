@@ -273,7 +273,7 @@ unset REJMERGE_ROOT
 REJMERGE_CONF="/etc/rejmerge.conf"
 REJECTED_DIR="/var/package/rejects"
 PAGER=more
-SUDO=/usr/bin/sudo
+SUDO=/usr/local/bin/sudo
 EDITOR=${EDITOR:-mg}
 TMPFILE=$(mktemp) || exit 1
 

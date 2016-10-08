@@ -22,7 +22,8 @@ Configure()
     ./configure \
         --prefix=/usr/local \
         --mandir=/usr/local/man \
-	--disable-nls
+	--disable-nls \
+        $*
 }
 
 # OpenBSD doesn't have the sed -i option, no problem, we make it
@@ -64,7 +65,7 @@ create_package()
 {
     message "Creating package."
     . $1
-    target="$2/$name#$version-$release.pkg.tar.gz"
+    target="$2/${name}_$version-$release.pkg.tar.gz"
     # Install metadata.
     database=var/package
     install -d $database
@@ -92,10 +93,6 @@ case $1 in
     -r)
         message rm -rf $2
         rm -rf $2
-        ;;
-    -s)
-        message strip $2 $3
-        strip $2 $3
         ;;
     -g)
 	create_package $2 $3

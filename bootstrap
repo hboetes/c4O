@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 if [ $(id -u) -eq 0 ]; then
-    echo "I'll ask you when I think I need root permissions, ok?" >&2
+    echo "I'll ask you when I think I need root permissions, Ok?" >&2
     exit 1
 fi
 
