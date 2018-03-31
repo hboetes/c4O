@@ -609,6 +609,9 @@ build_needed()
     if [ -f $TARGET ]; then
         RESULT=no
         for FILE in $PKGMK_PKGFILE $source; do
+            if [[ $FILE != ${FILE%.git} ]]; then
+                continue
+            fi
             FILE=$(get_filename $FILE)
             if [ ! -e $FILE ] || [ ! $TARGET -nt $FILE ]; then
                 RESULT=yes
