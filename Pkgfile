@@ -1,7 +1,7 @@
 # Maintainer:  Han Boetes <hboetes@gmail.com>
 # Packager:    Han Boetes <hboetes@gmail.com>
 # Description: utilities to manage cruxports
-# URL:         http://www.xs4all.nl/~hanb/software/c4o/
+# URL:         https://github.com/hboetes/c4O
 
 name=pkgutils
 version=0.1
@@ -39,7 +39,7 @@ build()
     # manpages
     install -d $PKG/usr/local/man/man8
     for i in *.[0-9].in; do
-	sed -e "s|#VERSION#|$version|" $i > $PKG/usr/local/man/man8/${i%.in}
+        sed -e "s|#VERSION#|$version|" $i > $PKG/usr/local/man/man8/${i%.in}
     done
     # configs
     install -d $PKG/etc

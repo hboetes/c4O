@@ -104,6 +104,17 @@ check_directory()
     fi
 }
 
+get_git_repo()
+{
+    if cd $PKGMK_SOURCE_DIR/$name ; then
+        git pull
+    else
+        if ! git -C $PKGMK_SOURCE_DIR clone "$1" $name; then
+            error "Fetching git repostory \`$1' failed."
+        fi
+    fi
+}
+
 download_file()
 {
     info "Downloading \`$1'."
@@ -160,6 +171,10 @@ download_source()
     local FILE LOCAL_FILENAME
 
     for FILE in $source; do
+         if [[ "$FILE" != "${FILE%.git}" ]]; then
+            get_git_repo "$FILE"
+            continue
+        fi
         LOCAL_FILENAME=$(get_filename $FILE)
         if [ ! -e $LOCAL_FILENAME ]; then
             if [ "$LOCAL_FILENAME" = "$FILE" ]; then
@@ -192,6 +207,8 @@ unpack_source()
                 COMMAND="bzcat $LOCAL_FILENAME | tar xf - -C $SRC" ;;
             *.zip)
                 COMMAND="unzip -qq -o -d $SRC $LOCAL_FILENAME" ;;
+            *.git)
+                COMMAND="cp -r $PKGMK_SOURCE_DIR/$name $SRC" ;;
             *)
                 COMMAND="cp $LOCAL_FILENAME $SRC" ;;
         esac
@@ -200,7 +217,7 @@ unpack_source()
 
         if ! eval $COMMAND; then
             keep_work
-            error "Building \`$TARGET' failed."
+            error "Preparing source code for \`$TARGET' failed."
             exit 1
         fi
     done
@@ -214,11 +231,13 @@ make_footprint()
 make_md5sum()
 {
     local FILE LOCAL_FILENAMES
-
-    if [ "$source" ]; then
-        for FILE in $source; do
-            LOCAL_FILENAMES="$LOCAL_FILENAMES $(get_filename $FILE)"
-        done
+    # md5 foo bar bla is a lot more efficient than for i in foo bar bla; md5 $i
+    for FILE in $source; do
+        # Git files don't have an md5sum.
+        [[ $FILE != ${FILE%.git} ]] && continue
+        LOCAL_FILENAMES="$LOCAL_FILENAMES $(get_filename $FILE)"
+    done
+    if [[ $LOCAL_FILENAMES != "" ]]; then
         md5 -r $LOCAL_FILENAMES | sed -e 's|/.*/||' | sort -k2
     fi
 }
@@ -547,6 +566,10 @@ clean()
     fi
 
     for FILE in $source; do
+        if [[ "$FILE" != "${FILE%.git}" ]]; then
+            info "Removing git clone directory \`$PKGMK_SOURCE_DIR/$name'"
+            rm -rf $PKGMK_SOURCE_DIR/$name
+        fi
         LOCAL_FILENAME=$(get_filename $FILE)
         if [ -e "$LOCAL_FILENAME" ] && [ "$LOCAL_FILENAME" != "$FILE" ]; then
             info "Removing $LOCAL_FILENAME"
