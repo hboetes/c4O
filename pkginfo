@@ -19,7 +19,11 @@
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 version=0.1
-bsd_tar=paxtar
+case $(uname) in
+    Linux)
+        alias tar=paxtar
+        ;;
+esac
 
 # TODO: This wont work of course.
 unset root
@@ -50,7 +54,7 @@ footprint()
     mktempfiles
     # The sed statement removes the destination part of a
     # symlink. Otherwise we can't remove symlinks later on.
-    $bsd_tar tzvf $1 | awk '{print $1"\t"$3"/"$4"\t"$9}' | sed -e 's| -> .*||' > $TMP1 || error 'something went really wrong.'
+    tar tzvf $1 | /usr/local/libexec/pkgfootprint | sed -e 's| -> .*||' > $TMP1 || error 'something went really wrong.'
     # * Only remove the /var entry if it is caused by
     #   var/package/$name-metadata
 
