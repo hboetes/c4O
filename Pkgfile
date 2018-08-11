@@ -39,7 +39,7 @@ build()
     # manpages
     install -d $PKG/usr/local/man/man8
     for i in *.[0-9].in; do
-	sed -e "s|#VERSION#|$version|" $i > $PKG/usr/local/man/man8/${i%.in}
+        sed -e "s|#VERSION#|$version|" $i > $PKG/usr/local/man/man8/${i%.in}
     done
     # configs
     install -d $PKG/etc

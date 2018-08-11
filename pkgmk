@@ -746,7 +746,7 @@ main()
     check_directory "${PKGMK_WORK_DIR%/*}"
     check_pkgfile
 
-    TARGET="$PKGMK_PACKAGE_DIR/$name#$version-$release.pkg.tar.gz"
+    TARGET="$PKGMK_PACKAGE_DIR/${name}_$version-$release.pkg.tar.gz"
 
     if [ "$PKGMK_UPDATE_PORT" = yes ]; then
         if ! whence -p "$EDITOR" > /dev/null; then

@@ -43,5 +43,5 @@ it there.
 
 han     ALL=(ALL)   PASSWD:   ALL
 han     ALL=(ALL)   NOPASSWD: \
-	/usr/local/bin/pkgadd, \
-	/usr/local/bin/pkgrm
+        /usr/local/bin/pkgadd, \
+        /usr/local/bin/pkgrm

@@ -44,7 +44,7 @@ sudo install -d /var/package/rejects
 echo 'building the first port! pkgutils!'
 pkgmk -f
 echo 'Adding it...'
-sudo pkgadd -f /usr/pkgmk/package/pkgutils*.pkg.tar.gz
+sudo pkgadd -f /usr/pkgmk/package/pkgutils_*.pkg.tar.gz
 echo "Setting the right permissions on the builddir."
 sudo chown    ${USER}:root /usr/pkgmk/*
 
