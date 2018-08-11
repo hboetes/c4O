@@ -520,7 +520,7 @@ install_package()
             OPTIONS="-u -f"
             ;;
     esac
-    COMMAND="$SUDO pkgadd $OPTIONS $TARGET"
+    COMMAND="sudo pkgadd $OPTIONS $TARGET"
 
     cd $PKGMK_ROOT
     info "$COMMAND"
@@ -839,7 +839,6 @@ readonly PKGMK_COMMAND=$0
 readonly PKGMK=${PKGMK_COMMAND##*/}
 readonly PKGMK_ROOT="$PWD"
 readonly PKGMK_ARGS="$*"
-readonly SUDO=/usr/local/bin/sudo
 
 PKGMK_CONFFILE=/etc/pkgmk.conf
 PKGMK_PKGFILE=Pkgfile
