@@ -11,6 +11,9 @@ case $(uname) in
     Linux)
         alias tar=paxtar
         ;;
+    OpenBSD)
+        alias tar=mtar
+        ;;
 esac
 
 message()
