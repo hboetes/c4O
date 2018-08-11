@@ -55,8 +55,8 @@ footprint()
     #   var/package/$name-metadata
     #
     # * Make sure there are tabs in that grep statement.
-    if [ $(grep "${tab}var$" $TMP1|wc -l) -eq 3 ]; then
-        grep -v "${tab}var$" $TMP1
+    if [ $(grep "${tab}var" $TMP1|wc -l) -eq 3 ]; then
+        grep -v "${tab}var" $TMP1
     else
         grep -v "${tab}var/package$" $TMP1
     fi
