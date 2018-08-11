@@ -1,5 +1,4 @@
-#!/bin/sh
-# $Id: pkgrm,v 1.10 2012/05/31 10:39:00 han Exp $
+#!/bin/mksh
 # Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
 
 # Permission to use, copy, modify, and distribute this software
@@ -65,9 +64,9 @@ verifypackage()
 {
     if [ -f "$dbase/$1-metadata" ]; then
         . $dbase/$1-metadata
-        [ -z "$name"    ] && error 1 "no packagename defined in $dbase/$1"
-        [ -z "$version" ] && error 1 "no versionnumber defined in $dbase/$1"
-        [ -z "$release" ] && error 1 "no releasenumber defined in $dbase/$1"
+        [ -z "$name"    ] && error 1 "no package name defined in $dbase/$1"
+        [ -z "$version" ] && error 1 "no version number defined in $dbase/$1"
+        [ -z "$release" ] && error 1 "no release number defined in $dbase/$1"
     else
         error 1 "The package \`$1' is not installed."
     fi

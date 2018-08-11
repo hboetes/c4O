@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/mksh
 #
 #  rejmerge (pkgutils)
 #
@@ -78,8 +78,8 @@ merge_menu()
             case "$CMD" in
                 i|I)
                     # Keep permissions
-                    $SUDO sh -c "cat $TMPFILE > $1"
-                    $SUDO rm -f "$2"
+                    sudo sh -c "cat $TMPFILE > $1"
+                    sudo rm -f "$2"
                     break 2
                     ;;
                 e|E)
@@ -109,11 +109,11 @@ diff_menu()
 
             case "$CMD" in
                 k|K)
-                    $SUDO rm -f "$2"
+                    sudo rm -f "$2"
                     break 2
                     ;;
                 u|U)
-                    $SUDO sh -c "cat $2 > $1"
+                    sudo sh -c "cat $2 > $1"
                     break 2
                     ;;
                 m|M)
@@ -145,11 +145,11 @@ file_menu()
 
             case "$CMD" in
                 k|K)
-                    $SUDO rm -f "$2"
+                    sudo rm -f "$2"
                     break 2
                     ;;
                 u|U)
-                    $SUDO sh -c "$2 > $1"
+                    sudo sh -c "$2 > $1"
                     break 2
                     ;;
                 d|D)
@@ -232,7 +232,7 @@ main()
         INSTALLED_FILE="${REJECTED_FILE##$REJECTED_DIR}"
         INSTALLED_FILE="${REJMERGE_ROOT:=/}${INSTALLED_FILE#/*/}"
         if [ ! -e "$INSTALLED_FILE" ] || cmp -s "$INSTALLED_FILE" "$REJECTED_FILE"; then
-            $SUDO rm -f "$REJECTED_FILE"
+            sudo rm -f "$REJECTED_FILE"
         else
             REJECTED_FILES_FOUND=yes
             diff_menu "$INSTALLED_FILE" "$REJECTED_FILE"
@@ -245,7 +245,7 @@ main()
         INSTALLED_FILE="${REJECTED_FILE##$REJECTED_DIR}"
         INSTALLED_FILE="${REJMERGE_ROOT:=/}${INSTALLED_FILE#/*/}"
         if [ ! -e "$INSTALLED_FILE" ]; then
-            $SUDO rm -f "$REJECTED_FILE"
+            sudo rm -f "$REJECTED_FILE"
         else
             REJECTED_FILES_FOUND=yes
             file_menu "$INSTALLED_FILE" "$REJECTED_FILE"
@@ -253,7 +253,7 @@ main()
     done
 
     # Remove empty directories
-    $SUDO find $REJECTED_DIR -mindepth 1 -depth -empty -exec rmdir {} \;
+    sudo find $REJECTED_DIR -mindepth 1 -depth -empty -exec rmdir {} \;
 
     if [ "$REJECTED_FILES_FOUND" = no ]; then
         echo "Nothing to merge"
@@ -273,7 +273,6 @@ unset REJMERGE_ROOT
 REJMERGE_CONF="/etc/rejmerge.conf"
 REJECTED_DIR="/var/package/rejects"
 PAGER=more
-SUDO=/usr/local/bin/sudo
 EDITOR=${EDITOR:-mg}
 TMPFILE=$(mktemp) || exit 1
 

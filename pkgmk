@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/mksh
 #
 #  pkgutils
 #
@@ -19,6 +19,18 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 #  USA.
+
+case $(uname) in
+    Linux)
+        MD5=md5sum
+        ;;
+    *BSD)
+        MD5="md5 -r"
+        ;;
+    *)
+        echo "Unknown systemname. Please check the sourcecode. This is easy to fix. Please send me patches, thanks!" >&2
+        exit 1
+esac
 
 beep()
 {
@@ -238,7 +250,7 @@ make_md5sum()
         LOCAL_FILENAMES="$LOCAL_FILENAMES $(get_filename $FILE)"
     done
     if [[ $LOCAL_FILENAMES != "" ]]; then
-        md5 -r $LOCAL_FILENAMES | sed -e 's|/.*/||' | sort -k2
+        $MD5 $LOCAL_FILENAMES | sed -e 's|/.*/||' | sort -k2
     fi
 }
 
@@ -508,7 +520,7 @@ install_package()
             OPTIONS="-u -f"
             ;;
     esac
-    COMMAND="$SUDO pkgadd $OPTIONS $TARGET"
+    COMMAND="sudo pkgadd $OPTIONS $TARGET"
 
     cd $PKGMK_ROOT
     info "$COMMAND"
@@ -827,7 +839,6 @@ readonly PKGMK_COMMAND=$0
 readonly PKGMK=${PKGMK_COMMAND##*/}
 readonly PKGMK_ROOT="$PWD"
 readonly PKGMK_ARGS="$*"
-readonly SUDO=/usr/local/bin/sudo
 
 PKGMK_CONFFILE=/etc/pkgmk.conf
 PKGMK_PKGFILE=Pkgfile
