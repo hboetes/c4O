@@ -40,14 +40,14 @@ error()
 {
     exitcode=$1
     shift
-    echo "$n: $@" >&2
+    echo "$n: $*" >&2
     exit $exitcode
 }
 
 
 message()
 {
-    echo "$n: $@"
+    echo "$n: $*"
 }
 
 isinstalled()
@@ -64,12 +64,12 @@ version()
 verifypackage()
 {
     if [ -f "$dbase/$1-metadata" ]; then
-	. $dbase/$1-metadata
-	[ -z "$name"    ] && error 1 "no packagename defined in $dbase/$1"
-	[ -z "$version" ] && error 1 "no versionnumber defined in $dbase/$1"
-	[ -z "$release" ] && error 1 "no releasenumber defined in $dbase/$1"
+        . $dbase/$1-metadata
+        [ -z "$name"    ] && error 1 "no packagename defined in $dbase/$1"
+        [ -z "$version" ] && error 1 "no versionnumber defined in $dbase/$1"
+        [ -z "$release" ] && error 1 "no releasenumber defined in $dbase/$1"
     else
-	error 1 "The package \`$1' is not installed."
+        error 1 "The package \`$1' is not installed."
     fi
 }
 
@@ -82,8 +82,8 @@ mktempfiles()
     dirsoldpackage=$DIR/dirsoldpackage
 
     if [ -e $dbase/$name-footprint ]; then
-	awk -F '\t' '/^[^d]/ {print $3}' $dbase/$name-footprint > $filesoldpackage
-	awk -F '\t' '/^d/    {print $3}' $dbase/$name-footprint > $dirsoldpackage
+        awk -F '\t' '/^[^d]/ {print $3}' $dbase/$name-footprint > $filesoldpackage
+        awk -F '\t' '/^d/    {print $3}' $dbase/$name-footprint > $dirsoldpackage
     fi
 
     # remove them in any way the program exits.
@@ -107,7 +107,7 @@ dbase()
     root=$1
     dbase=$root/var/package
     if [ ! -d $dbase ]; then
-	error "database directory $dbase not found."
+        error "database directory $dbase not found."
     fi
 }
 
@@ -115,27 +115,27 @@ dbase
 
 while [ $# -gt 0 ]; do
     case $1 in
-	-r|--root)
-	    [ -z $2 ] && error 1 "option \`$1' requires an argument."
-	    dbase $2
-	    shift 2
-	    ;;
-	-v|--version)
-	    version
-	    exit 0
-	    ;;
-	-h|--help)
-	    help
-	    exit 0
-	    ;;
-	-*)
-	    error 1 "Illegal option: $1"
-	    ;;
-	*)
-	    [ -n "$2" ] && error 1 "packagename must be the last argument."
-	    verifypackage $1
-	    shift
-	    ;;
+        -r|--root)
+            [ -z $2 ] && error 1 "option \`$1' requires an argument."
+            dbase $2
+            shift 2
+            ;;
+        -v|--version)
+            version
+            exit 0
+            ;;
+        -h|--help)
+            help
+            exit 0
+            ;;
+        -*)
+            error 1 "Illegal option: $1"
+            ;;
+        *)
+            [ -n "$2" ] && error 1 "packagename must be the last argument."
+            verifypackage $1
+            shift
+            ;;
     esac
 done
 
@@ -171,7 +171,7 @@ mktempfiles
 fgrep -q '\.so' $dbase/$name-footprint && ldconfig -R
 
 # Auto post-uninstall infopages.
-for i in $(egrep '^usr/local/info/[^-]*$' $filesoldpackage); do
+for i in $(grep -E '^usr/local/info/[^-]*$' $filesoldpackage); do
     # message "removing ${i##*/} info-entry."
     /usr/bin/install-info --delete $root/$i /usr/local/info/dir
 done
@@ -199,12 +199,12 @@ print -n '\aRun this post-install script? [y/N] '
 read answer
 case $answer in
     y*|Y*)
-	post-uninstall
-	exit $?
-	;;
+        post-uninstall
+        exit $?
+        ;;
     *)
-	exit 1
-	;;
+        exit 1
+        ;;
 esac
 
 exit 0
