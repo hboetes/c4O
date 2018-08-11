@@ -26,6 +26,7 @@ bsd_tar=tar
 unset root
 
 n=${0##*/}
+tab=$(printf '\t')
 
 mktempfiles()
 {
@@ -53,30 +54,28 @@ footprint()
     $bsd_tar tzvf $1 | /usr/local/libexec/pkgfootprint | sed -e 's| -> .*||' > $TMP1 || error 'something went really wrong.'
     # * Only remove the /var entry if it is caused by
     #   var/package/$name-metadata
-    #
-    # * Make sure there are tabs in that grep statement.
-    if [ $(grep -c '	var' $TMP1) -eq 3 ]; then
-        grep -v '	var' $TMP1
+    if [ $(grep -c "${tab}var" $TMP1) -eq 3 ]; then
+        grep -v "${tab}var" $TMP1
     else
-        grep -v '	var/package' $TMP1
+        grep -v "${tab}var/package" $TMP1
     fi
 }
 
 installed()
 {
     if [ -n "$1" ]; then
-	if [ -r "$dbase/$1-metadata" ]; then
-	    . $dbase/$1-metadata
-	    echo $name-$version-$release
-	else
-	    error "\`$1' is not an installed package."
-	fi
+        if [ -r "$dbase/$1-metadata" ]; then
+            . $dbase/$1-metadata
+            echo $name-$version-$release
+        else
+            error "\`$1' is not an installed package."
+        fi
     else
-	# This looks inefficient, but it works pretty fast.
-	for i in $dbase/*-metadata; do
-	    . $i
-	    echo $name-$version-$release
-	done
+        # This looks inefficient, but it works pretty fast.
+        for i in $dbase/*-metadata; do
+            . $i
+            echo $name-$version-$release
+        done
     fi
 }
 
@@ -87,18 +86,18 @@ owner()
     # TODO: add 2> /dev/null?
     fgrep "$filename" $dbase/*-footprint > $TMP1 # 2> /dev/null
     if [ -s $TMP1 ]; then
-	sed -e "s|^$dbase/\(.*\)-footprint:|\1	|" $TMP1
+        sed -e "s|^$dbase/\(.*\)-footprint:|\1  |" $TMP1
     else
-	error "no owner(s) found."
+        error "no owner(s) found."
     fi
 }
 
 list()
 {
     if [ -r "$dbase/$1-footprint" ]; then
-	cat $dbase/$1-footprint
+        cat $dbase/$1-footprint
     else
-	error "\`$1' is neither an installed package nor a package file."
+        error "\`$1' is neither an installed package nor a package file."
     fi
 }
 
@@ -129,7 +128,7 @@ dbase()
     root=$1
     dbase=$root/var/package
     if [ ! -d $dbase ]; then
-	error "database directory $dbase not found."
+        error "database directory $dbase not found."
     fi
 }
 
@@ -137,36 +136,36 @@ dbase
 
 case $1 in
     -r|--root)
-	[ -z $2 ] && error "option $1 requires an argument."
-	dbase $2
-	;;
+        [ -z $2 ] && error "option $1 requires an argument."
+        dbase $2
+        ;;
     -i|--installed)
-	installed $2
-	;;
+        installed $2
+        ;;
     -l|--list)
-	[ -z $2 ] && error "option $1 requires an argument."
-	list $2
-	;;
+        [ -z $2 ] && error "option $1 requires an argument."
+        list $2
+        ;;
     -o|--owner)
-	[ -z $2 ] && error "option $1 requires an argument."
-	owner $2
-	;;
+        [ -z $2 ] && error "option $1 requires an argument."
+        owner $2
+        ;;
     -f|--footprint)
-	[ -z $2 ] && error "option $1 requires an argument."
-	footprint $2
-	;;
+        [ -z $2 ] && error "option $1 requires an argument."
+        footprint $2
+        ;;
     -v|--version)
-	version
-	;;
+        version
+        ;;
     -h|--help)
-	help
-	;;
+        help
+        ;;
     '')
-	error "missing option"
-	;;
+        error "missing option"
+        ;;
     *)
-	error "invalid option $1"
-	;;
+        error "invalid option $1"
+        ;;
 esac
 
 exit 0

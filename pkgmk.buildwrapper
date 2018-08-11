@@ -22,7 +22,7 @@ Configure()
     ./configure \
         --prefix=/usr/local \
         --mandir=/usr/local/man \
-	--disable-nls \
+        --disable-nls \
         $*
 }
 
@@ -34,9 +34,9 @@ sed-i()
     REGEX="$1"
     shift
     for i in $*; do
-	sed -e "$REGEX" "$i" > $TMP1
-	# Preserve permissions etc.
-	cat $TMP1 > "$i"
+        sed -e "$REGEX" "$i" > $TMP1
+        # Preserve permissions etc.
+        cat $TMP1 > "$i"
     done
     rm $TMP1
     unset TMP1
@@ -49,13 +49,13 @@ remove_perlcrap()
     # Remove perlcrap
     set -x
     find $PKG \
-	\( \
+        \( \
         -name '.packlist' -or \
         -name '*.bs' -or \
         -name autosplit.ix -or \
         -name perllocal.pod \
-	\) \
-	-print0 | xargs -0 -r -t rm
+        \) \
+        -print0 | xargs -0 -r -t rm
     # Remove empty directories, ignore returncode
     find $PKG -depth -type d -print0 | xargs -r -0 -t rmdir > /dev/null 2>&1 || :
 }
@@ -87,7 +87,7 @@ case $1 in
         message build
         set -e
         . $2
-	typeset -ft build
+        typeset -ft build
         build
         ;;
     -r)
@@ -95,7 +95,7 @@ case $1 in
         rm -rf $2
         ;;
     -g)
-	create_package $2 $3
+        create_package $2 $3
         ;;
     *)
         echo 'BUZZ OFF!!'

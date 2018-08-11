@@ -55,13 +55,13 @@ Example:
 #
 
 rejmerge_diff() {
-	# Use diff(1) to produce side-by-side output
-	diff -y $1 $2 > $3
+        # Use diff(1) to produce side-by-side output
+        diff -y $1 $2 > $3
 }
 
 rejmerge_merge() {
-	# Use sdiff(1) to merge
-	sdiff -o $3 $1 $2
+        # Use sdiff(1) to merge
+        sdiff -o $3 $1 $2
 }
 
 # End of file
