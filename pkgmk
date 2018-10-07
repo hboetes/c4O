@@ -120,6 +120,7 @@ get_git_repo()
 {
     if cd $PKGMK_SOURCE_DIR/$name ; then
         git pull
+        cd -
     else
         if ! git -C $PKGMK_SOURCE_DIR clone "$1" $name; then
             error "Fetching git repostory \`$1' failed."
