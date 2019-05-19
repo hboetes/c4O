@@ -119,12 +119,14 @@ check_directory()
 get_git_repo()
 {
     if cd $PKGMK_SOURCE_DIR/$name ; then
+        git  checkout ${branch:=master}
         git pull
         cd -
     else
         if ! git -C $PKGMK_SOURCE_DIR clone "$1" $name; then
             error "Fetching git repostory \`$1' failed."
         fi
+        git -C $PKG_SOURCE_DIR/$name checkout ${branch:=master}
     fi
 }
 
