@@ -42,7 +42,7 @@ wrap()
     /usr/local/libexec/pkgmk.buildwrapper "$@"
 }
 
-if tmpfile=$(env TMPDIR=/root mktemp -t XXXXXXXXXX); then
+if tmpfile=$(env TMPDIR=/root mktemp -t XXXXXXXXXX) > /dev/null 2>&1; then
     echo 'I know it is hard to get used to, but...' >&2
     echo 'Now you have to build packages as user and not as root.' >&2
     rm -f $tmpfile
