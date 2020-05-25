@@ -283,7 +283,7 @@ check_md5sum()
             error "Identical file with different md5sum found:"
             echo
             cat $TMPFILE.md5sum_secdiff
-            cat << EOF
+            cat << EOF >&2
 
 This can mean a few things:
 
@@ -291,7 +291,6 @@ This can mean a few things:
    with:
 
      $PKGMK -c
-
 
  - If this results in the same error the sourcepackage may have been
    tempered with. Send the maintainer of this package an email and ask
