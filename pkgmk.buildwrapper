@@ -64,7 +64,7 @@ remove_perlcrap()
         -name perllocal.pod \
         \) \
         -print0 | xargs -0 -r -t rm
-    # Remove empty directories, ignore returncode
+    # Remove empty directories, ignore return code
     find $PKG -depth -type d -print0 | xargs -r -0 -t rmdir > /dev/null 2>&1 || :
 }
 
