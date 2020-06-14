@@ -678,7 +678,7 @@ options:
   -ns,  --no-strip            do not strip executable binaries or libraries
   -f,   --force               build package even if it appears to be up to date
   -s,   --short-circuit       do not unpack the source before building
-  -c,   --clean               remove package and downloaded files
+  -c,   --clean               remove package and downloaded source files
   -up,  --update-port         clean, remove footprint, edit Pkgfile, build, upgrade
   -kw,  --keep-work           keep temporary working directory
   -cf,  --config-file <file>  use alternative configuration file
