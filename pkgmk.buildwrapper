@@ -38,8 +38,8 @@ Configure()
 # while you are watching.
 sed-i()
 {
-    TMP1=$(mktemp sed-i.XXXXXXXXXX) || return 1
-    REGEX="$1"
+    local TMP1=$(mktemp sed-i.XXXXXXXXXX) || return 1
+    local REGEX="$1"
     shift
     for i in $*; do
         sed -e "$REGEX" "$i" > $TMP1
@@ -47,7 +47,7 @@ sed-i()
         cat $TMP1 > "$i"
     done
     rm $TMP1
-    unset TMP1
+    unset TMP1 REGEX
 }
 
 
