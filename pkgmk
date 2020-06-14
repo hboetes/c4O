@@ -121,7 +121,17 @@ get_git_repo()
 {
     if cd $PKGMK_SOURCE_DIR/$name > /dev/null 2>&1; then
         git checkout ${branch:=master}
-        git pull
+        git fetch
+        # Check if updates are available.
+        if git diff master...origin/master | grep -q "\n"; then
+            git pull
+        else
+            info "No upstream updates have been found."
+            if [[ $PKGMK_FORCE != yes ]]; then
+                info "Use -f to force building anyway."
+                exit 0
+            fi
+        fi
         cd -
     else
         if ! git -C $PKGMK_SOURCE_DIR clone "$1" $name; then
