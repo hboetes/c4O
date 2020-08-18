@@ -29,7 +29,7 @@ Configure()
 {
     ./configure \
         --prefix=/usr/local \
-        --mandir=/usr/local/man \
+        --mandir=/usr/local/share/man \
         --disable-nls \
         $*
 }
