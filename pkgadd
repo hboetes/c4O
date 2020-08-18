@@ -1,4 +1,4 @@
-#!/bin/mksh
+#!/bin/zsh
 # $Id: pkgadd,v 1.23 2012/05/31 10:39:00 han Exp $
 # Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
 
@@ -31,12 +31,6 @@ pkgadd_conf=/etc/pkgadd.conf
 unset root package version release pattern FORCE UPGRADE
 
 tab=$(printf '\t')
-
-case $(uname) in
-    Linux)
-        alias tar=paxtar
-        ;;
-esac
 
 # From OpenBSD /etc/rc
 stripcom()
@@ -74,8 +68,10 @@ mktempfiles()
         awk -F '\t' '/^d/    {print $3}' $dbase/$name-footprint > $dirsoldpackage
     fi
 
-    # remove them in any way the program exits.
-    trap 'rm -rf $DIR' 0 1 2 3 13 15
+    zshexit()
+    {
+        rm -rf $DIR
+    }
 }
 
 #  Support various errorcodes so pkgmk can use them.
@@ -198,10 +194,10 @@ makepattern()
         # YES patterns MUST precede NO patterns.
         case $3 in
             YES)
-                pattern=" -s |$2|&| $pattern"
+                pattern=" --transform s|$2|&| $pattern"
                 ;;
             NO)
-                pattern="$pattern -s |$2|$rejects/$name/&|"
+                pattern="$pattern --transform s|$2|$rejects/$name/&|"
                 ;;
             *)
                 error 1 "Illegal pattern in $pkgadd_conf"
@@ -232,7 +228,7 @@ tarcommand()
     if [ $(id -u) -eq 0 ]; then
         # Remove old rejects from previous installs.
         rm -rf $rejects/$name
-        tar $pattern -zxpf $1 -C ${root:=/}
+        tar ${=pattern} -zxpf $1 -C ${root:=/}
     else
         error 1 "Only root can add packages."
     fi
@@ -260,9 +256,12 @@ installrejects()
             tar -zxpf $path_package -C ${root:=/} $unrejected
         fi
         # Remove all empty dirs in $rejects.
-        find $rejects -depth -type d -print0| xargs -0 rmdir > /dev/null 2>&1
+        find $rejects -mindepth 1 -type d -delete
         # Notice all rejects created by this port.
-        find $rejects/$name ! -type d > $TMP1
+        : > $TMP1
+        if [ -d $rejects/$name ]; then
+            find $rejects/$name ! -type d > $TMP1
+        fi
         if [ -s $TMP1 ]; then
             message 'Notice: These files got rejected. Use rejmerge if you want to merge them.'
             cat $TMP1

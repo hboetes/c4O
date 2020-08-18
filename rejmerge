@@ -1,4 +1,4 @@
-#!/bin/mksh
+#!/bin/zsh
 #
 #  rejmerge (pkgutils)
 #
@@ -263,7 +263,11 @@ main()
 }
 
 trap "interrupted" 1 2 3 13 15
-trap "atexit" 0
+zshexit()
+{
+    atexit
+}
+
 
 export LC_ALL=POSIX
 

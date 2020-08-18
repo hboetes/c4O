@@ -1,9 +1,9 @@
-#!/bin/mksh
+#!/bin/zsh
 #
 #  pkgutils
 #
 #  Copyright (c) 2000-2004 Per Liden
-#  Copyright (c) 2005-2006 Han Boetes <hboetes@gmail.com>
+#  Copyright (c) 2005-2020 Han Boetes <hboetes@gmail.com>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ check_pkgfile()
         exit 1
     fi
     case $(type build) in
-        *function) : ;;
+        'build is a shell function from'*) : ;;
         *)
             error "Function \`build' not specified in $PKGMK_PKGFILE."
             exit 1
@@ -123,15 +123,15 @@ get_git_repo()
         git checkout ${branch:=master}
         git fetch
         # Check if updates are available.
-        if git diff master...origin/master | grep -q "\n"; then
-            git pull
-        else
-            info "No upstream updates have been found."
-            if [[ $PKGMK_FORCE != yes ]]; then
-                info "Use -f to force building anyway."
-                exit 0
-            fi
-        fi
+        # if git diff master...origin/master | grep -q "\n"; then
+        git pull
+        # else
+        #     info "No upstream updates have been found."
+        #     if [[ $PKGMK_FORCE != yes ]]; then
+        #         info "Use -f to force building anyway."
+        #         exit 0
+        #     fi
+        # fi
         cd -
     else
         if ! git -C $PKGMK_SOURCE_DIR clone "$1" $name; then
@@ -146,17 +146,6 @@ download_file()
     info "Downloading \`$1'."
 
     FILENAME=${1##*/}
-
-    # TODO; get the resume funtion of ftp working.
-    if ! whence -p wget > /dev/null; then
-        if ftp -V -o $PKGMK_SOURCE_DIR/$FILENAME $1; then
-            return 0
-        else
-            error "Downloading \`$1' failed."
-            exit 1
-        fi
-    fi
-
     PARTIALNAME=$FILENAME.$PART_EXT
     DOWNLOAD_CMD="--passive-ftp --no-directories --tries=1
                   -O $PKGMK_SOURCE_DIR/$PARTIALNAME $1"
@@ -261,7 +250,7 @@ make_md5sum()
     for FILE in $source; do
         # Git files don't have an md5sum.
         [[ $FILE != ${FILE%.git} ]] && continue
-        LOCAL_FILENAMES="$LOCAL_FILENAMES $(get_filename $FILE)"
+        LOCAL_FILENAMES=($LOCAL_FILENAMES $(get_filename $FILE))
     done
     if [[ $LOCAL_FILENAMES != "" ]]; then
         $MD5 $LOCAL_FILENAMES | sed -e 's|/.*/||' | sort -k2
@@ -534,13 +523,11 @@ install_package()
             ;;
     esac
     COMMAND="sudo pkgadd $OPTIONS $TARGET"
-
     cd $PKGMK_ROOT
     info "$COMMAND"
 
-    $COMMAND 2> /dev/null
+    ${=COMMAND} 2> /dev/null
     errorcode=$?
-
     # Give proper errormessages.
     if [ $errorcode -eq 12 ]; then
         echo "These files are conflicting." >&2
@@ -777,7 +764,7 @@ main()
             error "File \`$FILE' not found."
             exit 1
         fi
-        . $FILE
+        source $FILE
     done
 
     check_directory "$PKGMK_SOURCE_DIR"

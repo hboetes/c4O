@@ -1,4 +1,4 @@
-#!/bin/mksh
+#!/bin/zsh
 # Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
 
 # Permission to use, copy, modify, and distribute this software
@@ -86,7 +86,10 @@ mktempfiles()
     fi
 
     # remove them in any way the program exits.
-    trap 'rm -rf $DIR' 0 1 2 3 13 15
+    zshexit()
+    {
+        rm -rf $DIR
+    }
 }
 
 

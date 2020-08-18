@@ -1,4 +1,4 @@
-#!/bin/mksh -e
+#!/bin/zsh -e
 
 if [ $(id -u) -eq 0 ]; then
     echo "I'll ask you when I think I need root permissions, Ok?" >&2
@@ -14,18 +14,10 @@ case $(uname) in
         ;;
 esac
 
-if ! cd /usr/cruxports/core/pkgutils; then
-    cat << EOF >&2
-You have to run ./bootstrap from the directory
-/usr/cruxports/core/pkgutils or else I will get confused.
-EOF
-fi
-
 echo "Setting the right permissions for the portsdir."
 sudo chown -R ${USER}:$rtgrp /usr/cruxports
 
 echo installing pkgutils
-gcc -Wall pkgfootprint.c -o pkgfootprint
 sudo install -d /usr/local/libexec
 sudo install -m 755 -d                    /usr/local/bin
 sudo install -m 755 pkgadd                /usr/local/bin
@@ -33,7 +25,6 @@ sudo install -m 755 pkgrm                 /usr/local/bin
 sudo install -m 755 pkginfo               /usr/local/bin
 sudo install -m 755 pkgmk                 /usr/local/bin
 sudo install -m 755 pkgmk.buildwrapper    /usr/local/libexec
-sudo install -m 755 pkgfootprint          /usr/local/libexec
 
 
 echo "Creating work directories."

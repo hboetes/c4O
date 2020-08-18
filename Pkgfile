@@ -6,11 +6,10 @@
 name=pkgutils
 version=0.1
 release=1
-source="
+source=(
     pkgadd
     pkgadd.8.in
     pkgadd.conf
-    pkgfootprint.c
     pkginfo
     pkginfo.8.in
     pkgmk
@@ -22,11 +21,10 @@ source="
     rejmerge
     rejmerge.8.in
     rejmerge.conf
-"
+)
 
 build()
 {
-    gcc -Wall -Werror $CFLAGS pkgfootprint.c -o pkgfootprint
     # binaries
     install -d $PKG/usr/local/bin $PKG/usr/local/libexec
     install -m 755 $SRC/pkgmk.buildwrapper $PKG/usr/local/libexec
@@ -35,7 +33,6 @@ build()
     install -m 755 $SRC/pkgadd             $PKG/usr/local/bin
     install -m 755 $SRC/pkgrm              $PKG/usr/local/bin
     install -m 755 $SRC/pkginfo            $PKG/usr/local/bin
-    install -m 755 $SRC/pkgfootprint       $PKG/usr/local/libexec
     # manpages
     install -d $PKG/usr/local/man/man8
     for i in *.[0-9].in; do

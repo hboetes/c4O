@@ -1,4 +1,4 @@
-#!/bin/mksh
+#!/bin/zsh
 
 unset TMP TMPDIR
 
@@ -55,7 +55,6 @@ sed-i()
 remove_perlcrap()
 {
     # Remove perlcrap
-    set -x
     find $PKG \
         \( \
         -name '.packlist' -or \
@@ -63,9 +62,9 @@ remove_perlcrap()
         -name autosplit.ix -or \
         -name perllocal.pod \
         \) \
-        -print0 | xargs -0 -r -t rm
+        -delete
     # Remove empty directories, ignore return code
-    find $PKG -depth -type d -print0 | xargs -r -0 -t rmdir > /dev/null 2>&1 || :
+    find $PKG -depth -type d -delete > /dev/null 2>&1 || :
 }
 
 
