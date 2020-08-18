@@ -148,22 +148,21 @@ download_file()
 
     FILENAME=${1##*/}
     PARTIALNAME=$FILENAME.$PART_EXT
-    DOWNLOAD_CMD="--passive-ftp --no-directories --tries=1
-                  -O $PKGMK_SOURCE_DIR/$PARTIALNAME $1"
+    DOWNLOAD_CMD="--no-directories --tries=1 -O $PKGMK_SOURCE_DIR/$PARTIALNAME $1"
 
     if [ -f $PKGMK_SOURCE_DIR/$PARTIALNAME ]; then
-        info "Partial download found,trying to continue..."
-        if ! wget -c $DOWNLOAD_CMD; then
+        info "Partial download found, trying to continue..."
+        if ! wget -c ${=DOWNLOAD_CMD}; then
             # resume failed; check whether is there at all
             if wget --tries=1 --passive-ftp --spider $1; then
-                info "Partial downloading failed,restarting..."
-                # it's there but resuming is not supported;restart
+                info "Partial downloading failed, restarting..."
+                # it's there but resuming is not supported; restart
                 rm -f $1.$PART_EXT
-                wget $DOWNLOAD_CMD
+                wget ${=DOWNLOAD_CMD}
             fi
         fi
     else
-        wget $DOWNLOAD_CMD
+        wget ${=DOWNLOAD_CMD}
     fi
 
     if [ $? != 0 -o ! -s $PKGMK_SOURCE_DIR/$PARTIALNAME ];then
