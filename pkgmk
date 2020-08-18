@@ -26,6 +26,7 @@ case $(uname) in
         ;;
     *BSD)
         MD5="md5 -r"
+        alias tar=gtar
         ;;
     *)
         echo "Unknown systemname. Please check the sourcecode. This is easy to fix. Please send me patches, thanks!" >&2
@@ -253,7 +254,7 @@ make_md5sum()
         LOCAL_FILENAMES=($LOCAL_FILENAMES $(get_filename $FILE))
     done
     if [[ $LOCAL_FILENAMES != "" ]]; then
-        $MD5 $LOCAL_FILENAMES | sed -e 's|/.*/||' | sort -k2
+        ${=MD5} $LOCAL_FILENAMES | sed -e 's|/.*/||' | sort -k2
     fi
 }
 

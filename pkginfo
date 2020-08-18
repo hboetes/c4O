@@ -20,6 +20,18 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 version=0.1
 
+case $(uname) in
+    Linux)
+        :
+        ;;
+    *BSD)
+        alias tar=gtar
+        ;;
+    *)
+        echo "Unknown systemname. Please check the sourcecode. This is easy to fix. Please send me patches, thanks!" >&2
+        exit 1
+esac
+
 # TODO: This wont work of course.
 unset root
 

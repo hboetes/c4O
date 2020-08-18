@@ -1,5 +1,6 @@
 #!/bin/zsh -e
 
+
 if [ $(id -u) -eq 0 ]; then
     echo "I'll ask you when I think I need root permissions, Ok?" >&2
     exit 1
@@ -11,6 +12,11 @@ case $(uname) in
         ;;
     OpenBSD)
         rtgrp=wheel
+        if ! command -v gtar >& /dev/null; then
+            echo "Please install gtar, like this:" >&2
+            echo "  pkg_add gtar" >&2
+            exit 1
+        fi
         ;;
 esac
 
