@@ -20,6 +20,8 @@
 #  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 #  USA.
 
+setopt shwordsplit
+
 case $(uname) in
     Linux)
         MD5=md5sum
@@ -152,17 +154,17 @@ download_file()
 
     if [ -f $PKGMK_SOURCE_DIR/$PARTIALNAME ]; then
         info "Partial download found, trying to continue..."
-        if ! wget -c ${=DOWNLOAD_CMD}; then
+        if ! wget -c ${DOWNLOAD_CMD}; then
             # resume failed; check whether is there at all
             if wget --tries=1 --passive-ftp --spider $1; then
                 info "Partial downloading failed, restarting..."
                 # it's there but resuming is not supported; restart
                 rm -f $1.$PART_EXT
-                wget ${=DOWNLOAD_CMD}
+                wget ${DOWNLOAD_CMD}
             fi
         fi
     else
-        wget ${=DOWNLOAD_CMD}
+        wget ${DOWNLOAD_CMD}
     fi
 
     if [ $? != 0 -o ! -s $PKGMK_SOURCE_DIR/$PARTIALNAME ];then
@@ -253,7 +255,7 @@ make_md5sum()
         LOCAL_FILENAMES=($LOCAL_FILENAMES $(get_filename $FILE))
     done
     if [[ $LOCAL_FILENAMES != "" ]]; then
-        ${=MD5} $LOCAL_FILENAMES | sed -e 's|/.*/||' | sort -k2
+        ${MD5} $LOCAL_FILENAMES | sed -e 's|/.*/||' | sort -k2
     fi
 }
 
@@ -526,7 +528,7 @@ install_package()
     cd $PKGMK_ROOT
     info "$COMMAND"
 
-    ${=COMMAND} 2> /dev/null
+    ${COMMAND} 2> /dev/null
     errorcode=$?
     # Give proper errormessages.
     if [ $errorcode -eq 12 ]; then

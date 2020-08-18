@@ -19,6 +19,8 @@
 # Make sure we're not tricked into using the wrong binaries.
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
+setopt shwordsplit
+
 case $(uname) in
     Linux)
         :
@@ -241,7 +243,7 @@ tarcommand()
     if [ $(id -u) -eq 0 ]; then
         # Remove old rejects from previous installs.
         rm -rf $rejects/$name
-        tar ${=pattern} -zxpf $1 -C ${root:=/}
+        tar ${pattern} -zxpf $1 -C ${root:=/}
     else
         error 1 "Only root can add packages."
     fi
