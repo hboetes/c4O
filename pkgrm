@@ -15,16 +15,10 @@
 # NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-# Make sure we're not tricked into using the wrong binaries.
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+source /usr/local/lib/pkgutils.shared
 
 # Noone needs to read what's made by pkgrm.
 umask 077
-
-version=0.1
-# Name of the script.
-n=${0##*/}
-
 # Unset variables which may be used uninitialized, prevent
 # influence from environment.
 unset root package version release
