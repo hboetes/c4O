@@ -74,7 +74,7 @@ merge_menu()
 
         while :; do
             info_n "[I]nstall [E]dit [V]iew [S]kip? "
-            read CMD
+            read -sk1 CMD
             echo
 
             case "$CMD" in
@@ -106,7 +106,7 @@ diff_menu()
         $PAGER "$TMPFILE"
         while :; do
             info_n "[K]eep [U]pgrade [M]erge [D]iff [S]kip? "
-            read CMD
+            read -sk1 CMD
             echo
 
             case "$CMD" in
@@ -142,7 +142,7 @@ file_menu()
         file "$1" "$2"
         while :; do
             info_n "[K]eep [U]pgrade [D]iff [S]kip? "
-            read CMD
+            read -sk1 CMD
             echo
 
             case "$CMD" in
