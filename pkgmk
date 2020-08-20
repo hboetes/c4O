@@ -272,7 +272,7 @@ EOF
             error "Md5sum mismatch found:"
             cat $TMPFILE.md5sum.diff
             echo -n 'Do you want me to update the md5sum? [y/N] '
-            read answer
+            read -sk1 answer
             echo
             if [ "$answer" = y ] || [ "$answer" = Y ]; then
                 update_md5sum
@@ -363,7 +363,7 @@ check_footprint()
                 cat $FILE.footprint.diff
                 while :; do
                     echo -n '[u]pdate footprint/[i]gnore footprint mismatch/[e]rror [u/i/e] '
-                    read answer
+                    read -sk1 answer
                     echo
                     case $answer in
                         u|U)
