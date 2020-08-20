@@ -1,8 +1,13 @@
-#!/bin/zsh -e
+#!/bin/sh -e
 
 
 if [ $(id -u) -eq 0 ]; then
     echo "I'll ask you when I think I need root permissions, Ok?" >&2
+    exit 1
+fi
+
+if ! command -v zsh >& /dev/null; then
+    echo "Please install zsh" >&2
     exit 1
 fi
 
