@@ -1,0 +1,62 @@
+#!/bin/zsh
+#
+#  pkgutils
+#
+#  Copyright (c) 2000-2004 Per Liden
+#  Copyright (c) 2005-2020 Han Boetes <hboetes@gmail.com>
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or (at
+#  your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+#  USA.
+
+# This file contains all settings and options common to all pkgutils scripts.
+
+# Make sure we're not tricked into using the wrong binaries.
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+
+setopt shwordsplit
+
+version=0.2
+
+# Name of the script.
+n=${0##*/}
+tab=$(printf '\t')
+
+case $(uname) in
+    Linux)
+        MD5=md5sum
+        ;;
+    *BSD)
+        MD5="md5 -r"
+        alias tar=gtar
+        ;;
+    *)
+        echo "Unknown systemname. Please check the sourcecode. This is easy to fix. Please send me patches, thanks!" >&2
+        exit 1
+esac
+
+info()
+{
+    echo "=======> $1"
+}
+
+warning()
+{
+    echo "=======> WARNING: $1" >&2
+}
+
+error()
+{
+    echo "=======> ERROR: $1" >&2
+}

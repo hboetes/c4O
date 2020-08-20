@@ -21,18 +21,20 @@ source=(
     rejmerge
     rejmerge.8.in
     rejmerge.conf
+    pkgutils.shared
 )
 
 build()
 {
     # binaries
-    install -d $PKG/usr/local/bin $PKG/usr/local/libexec
+    install -d $PKG/usr/local/bin $PKG/usr/local/libexec $PKG/usr/local/lib
     install -m 755 $SRC/pkgmk.buildwrapper $PKG/usr/local/libexec
     install -m 755 $SRC/pkgmk              $PKG/usr/local/bin
     install -m 755 $SRC/rejmerge           $PKG/usr/local/bin
     install -m 755 $SRC/pkgadd             $PKG/usr/local/bin
     install -m 755 $SRC/pkgrm              $PKG/usr/local/bin
     install -m 755 $SRC/pkginfo            $PKG/usr/local/bin
+    install -m 755 $SRC/pkgutils.shared    $PKG/usr/local/lib
     # manpages
     install -d $PKG/usr/local/man/man8
     for i in *.[0-9].in; do

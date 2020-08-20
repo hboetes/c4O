@@ -24,12 +24,14 @@ echo "Setting the right permissions for the portsdir."
 sudo chown -R ${USER}:$rtgrp /usr/cruxports
 
 echo installing pkgutils
-sudo install -d /usr/local/libexec
+sudo install -m 755 -d                    /usr/local/lib
+sudo install -m 755 pkgutils.shared       /usr/local/lib
 sudo install -m 755 -d                    /usr/local/bin
 sudo install -m 755 pkgadd                /usr/local/bin
 sudo install -m 755 pkgrm                 /usr/local/bin
 sudo install -m 755 pkginfo               /usr/local/bin
 sudo install -m 755 pkgmk                 /usr/local/bin
+sudo install -m 755 -d                    /usr/local/libexec
 sudo install -m 755 pkgmk.buildwrapper    /usr/local/libexec
 
 
