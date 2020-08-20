@@ -20,20 +20,7 @@
 #  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 #  USA.
 
-setopt shwordsplit
-
-case $(uname) in
-    Linux)
-        MD5=md5sum
-        ;;
-    *BSD)
-        MD5="md5 -r"
-        alias tar=gtar
-        ;;
-    *)
-        echo "Unknown systemname. Please check the sourcecode. This is easy to fix. Please send me patches, thanks!" >&2
-        exit 1
-esac
+source /usr/local/lib/pkgutils.shared
 
 beep()
 {
@@ -51,21 +38,6 @@ if tmpfile=$(env TMPDIR=/root mktemp -t XXXXXXXXXX) > /dev/null 2>&1; then
     rm -f $tmpfile
     exit 1
 fi
-
-info()
-{
-    echo "=======> $1"
-}
-
-warning()
-{
-    echo "=======> WARNING: $1" >&2
-}
-
-error()
-{
-    echo "=======> ERROR: $1" >&2
-}
 
 keep_work()
 {

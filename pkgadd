@@ -19,24 +19,7 @@
 # Make sure we're not tricked into using the wrong binaries.
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
-setopt shwordsplit
-
-case $(uname) in
-    Linux)
-        :
-        ;;
-    *BSD)
-        alias tar=gtar
-        ;;
-    *)
-        echo "Unknown systemname. Please check the sourcecode. This is easy to fix. Please send me patches, thanks!" >&2
-        exit 1
-esac
-
-
-version=0.1
-# Name of the script.
-n=${0##*/}
+source /usr/local/lib/pkgutils.shared
 
 # Configuration-file for pkgadd.
 pkgadd_conf=/etc/pkgadd.conf
