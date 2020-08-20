@@ -98,7 +98,6 @@ find_conflicts()
                 pkginfo -o $line || error 'aborting.'
             else
                 # Remove the conflicting line from the database.
-                # Make sure that's a "TAB$line$"
                 footprint=$(grep -l "${tab}$line$" $dbase/*-footprint)
                 grep -v "${tab}$line$" $footprint > $footprint.tmp
                 mv $footprint.tmp $footprint
