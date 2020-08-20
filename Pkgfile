@@ -1,10 +1,10 @@
 # Maintainer:  Han Boetes <hboetes@gmail.com>
-# Packager:    Han Boetes <hboetes@gmail.com>
 # Description: utilities to manage cruxports
 # URL:         https://github.com/hboetes/c4O
 
 name=pkgutils
-version=0.1
+# Make sure this is in sync with the setting in pkgtutils.shared
+version=0.2
 release=1
 source=(
     pkgadd

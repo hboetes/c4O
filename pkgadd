@@ -1,6 +1,5 @@
 #!/bin/zsh
-# $Id: pkgadd,v 1.23 2012/05/31 10:39:00 han Exp $
-# Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
+# Copyright (c) 2006-2020 Han Boetes <hboetes@gmail.com>
 
 # Permission to use, copy, modify, and distribute this software
 # for any purpose with or without fee is hereby granted, provided
@@ -16,18 +15,10 @@
 # NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-# Make sure we're not tricked into using the wrong binaries.
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
-
 source /usr/local/lib/pkgutils.shared
 
 # Configuration-file for pkgadd.
 pkgadd_conf=/etc/pkgadd.conf
-
-# Unset variables which may be used uninitialized, prevent
-# influence from environment.
-unset root package version release pattern FORCE UPGRADE
-
 
 # From OpenBSD /etc/rc
 stripcom()
@@ -60,7 +51,7 @@ mktempfiles()
     awk '/^[^d]/ {print $9}' $TMP1 > $filesnewpackage
     awk '/^d/    {print $9}' $TMP1 > $dirsnewpackage
 
-    if [ -e $dbase/$name-footprint ]; then
+    if [ -f $dbase/$name-footprint ]; then
         awk -F '\t' '/^[^d]/ {print $3}' $dbase/$name-footprint > $filesoldpackage
         awk -F '\t' '/^d/    {print $3}' $dbase/$name-footprint > $dirsoldpackage
     fi
@@ -81,14 +72,9 @@ error()
 }
 
 
-message()
-{
-    echo "$n: $@"
-}
-
 isinstalled()
 {
-    [ -e $dbase/$1-footprint ]
+    [ -f $dbase/$1-footprint ]
     return $?
 }
 
@@ -124,12 +110,6 @@ find_conflicts()
             message "Unregistered conflicting files."
         fi
     fi
-}
-
-
-version()
-{
-    message "(pkgutils) $version"
 }
 
 verifypackage()
@@ -245,7 +225,7 @@ installrejects()
             if [ ! -e "${root:=/}$j" ] && grep -q "^$j$" $filesnewpackage; then
                 # Workaround files with spaces.
                 k="echo $j | sed -e 's| |\\ |g'"
-                unrejected="$unrejected $k"
+                unrejected=($unrejected $k)
             fi
         done
         if [ -n "$unrejected" ]; then
@@ -392,7 +372,7 @@ for i in $(grep '^usr/share/info/[^-]*$' $filesnewpackage); do
 done
 
 # Auto post-install infopages in packages.
-for i in $(grep '^usr/local/info/[^-]*$' $filesnewpackage); do
+for i in $(grep '^usr/local/share/info/[^-]*$' $filesnewpackage); do
     # message "adding ${i##*/} info-entry."
     /usr/bin/install-info $root/$i $root/usr/local/info/dir
 done
@@ -411,7 +391,7 @@ print '\001\033[31m\001'
 typeset -f post-install
 print '\001\033[0m\001'
 print -n '\aRun this post-install script? [y/N] '
-read answer
+read -sk1 answer
 case $answer in
     y*|Y*)
         post-install

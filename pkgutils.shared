@@ -27,7 +27,11 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 setopt shwordsplit
 
-version=0.2
+# Unset variables which may be used uninitialized, prevent influence
+# from environment.
+unset root package version release pattern FORCE UPGRADE
+
+pkversion=0.2
 
 # Name of the script.
 n=${0##*/}
@@ -59,4 +63,14 @@ warning()
 error()
 {
     echo "=======> ERROR: $1" >&2
+}
+
+message()
+{
+    echo "$n: $@"
+}
+
+version()
+{
+    message "pkgutils-$pkversion"
 }

@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Copyright (c) 2006 Han Boetes <hboetes@gmail.com>
+# Copyright (c) 2006-2020 Han Boetes <hboetes@gmail.com>
 
 # Permission to use, copy, modify, and distribute this software
 # for any purpose with or without fee is hereby granted, provided
@@ -19,14 +19,6 @@ source /usr/local/lib/pkgutils.shared
 
 # Noone needs to read what's made by pkgrm.
 umask 077
-# Unset variables which may be used uninitialized, prevent
-# influence from environment.
-unset root package version release
-#test rootdir
-# root=/home/public/han/software/pkgutils
-
-# Debugcode: trace specific function.
-# typeset -ft
 
 #  Support various errorcodes so pkgmk can use them.
 error()
@@ -38,21 +30,12 @@ error()
 }
 
 
-message()
-{
-    echo "$n: $*"
-}
-
 isinstalled()
 {
     [ -e $dbase/$1-footprint ]
     return $?
 }
 
-version()
-{
-    message "(pkgutils) $version"
-}
 
 verifypackage()
 {
@@ -167,9 +150,9 @@ mktempfiles
 fgrep -q '\.so' $dbase/$name-footprint && ldconfig -R
 
 # Auto post-uninstall infopages.
-for i in $(grep -E '^usr/local/info/[^-]*$' $filesoldpackage); do
+for i in $(grep -E '^usr/local/share/info/[^-]*$' $filesoldpackage); do
     # message "removing ${i##*/} info-entry."
-    /usr/bin/install-info --delete $root/$i /usr/local/info/dir
+    /usr/bin/install-info --delete $root/$i /usr/local/share/info/dir
 done
 
 # Auto post-uninstall for tex packages
@@ -192,7 +175,7 @@ message "Request to execute these commands with root permissions:"
 print '\001\033[31m\001'
 typeset -f post-uninstall
 print -n '\aRun this post-install script? [y/N] '
-read answer
+read -sk1 answer
 case $answer in
     y*|Y*)
         post-uninstall
