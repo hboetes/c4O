@@ -28,7 +28,6 @@ pkgadd_conf=/etc/pkgadd.conf
 # influence from environment.
 unset root package version release pattern FORCE UPGRADE
 
-tab=$(printf '\t')
 
 # From OpenBSD /etc/rc
 stripcom()
