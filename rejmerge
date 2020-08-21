@@ -22,11 +22,6 @@
 
 source /usr/local/lib/pkgutils.shared
 
-info_n()
-{
-    echo -n "=======> $1"
-}
-
 info()
 {
     info_n "$1"
@@ -73,11 +68,9 @@ merge_menu()
         fi
 
         while :; do
-            info_n "[I]nstall [E]dit [V]iew [S]kip? "
-            read -sk1 CMD
-            echo
+            question "[I]nstall [E]dit [V]iew [S]kip?"
 
-            case "$CMD" in
+            case "$answer" in
                 i|I)
                     # Keep permissions
                     sudo sh -c "cat $TMPFILE > $1"
@@ -105,11 +98,9 @@ diff_menu()
         info "$1"
         $PAGER "$TMPFILE"
         while :; do
-            info_n "[K]eep [U]pgrade [M]erge [D]iff [S]kip? "
-            read -sk1 CMD
-            echo
+            question "[K]eep [U]pgrade [M]erge [D]iff [S]kip?"
 
-            case "$CMD" in
+            case "$answer" in
                 k|K)
                     sudo rm -f "$2"
                     break 2
@@ -141,16 +132,15 @@ file_menu()
         info "$1"
         file "$1" "$2"
         while :; do
-            info_n "[K]eep [U]pgrade [D]iff [S]kip? "
-            read -sk1 CMD
-            echo
+            question "[K]eep [U]pgrade [D]iff [S]kip?"
 
-            case "$CMD" in
+            case "$answer" in
                 k|K)
                     sudo rm -f "$2"
                     break 2
                     ;;
                 u|U)
+                    # This keeps permissions intact.
                     sudo sh -c "$2 > $1"
                     break 2
                     ;;

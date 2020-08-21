@@ -1,3 +1,3 @@
-  * Get the resume function of ftp working
-  * hooks for lint
   * Check code for the TODO keyword.
+  * show what sudo does, in yellow or so. make doas work as well.
+

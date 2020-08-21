@@ -174,8 +174,7 @@ typeset -f post-uninstall > /dev/null || exit 0
 message "Request to execute these commands with root permissions:"
 print '\001\033[31m\001'
 typeset -f post-uninstall
-print -n '\aRun this post-install script? [y/N] '
-read -sk1 answer
+question 'Run this post-install script? [y/N]'
 case $answer in
     y*|Y*)
         post-uninstall

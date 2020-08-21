@@ -271,9 +271,7 @@ EOF
         if [ -s $TMPFILE.md5sum.diff ]; then
             error "Md5sum mismatch found:"
             cat $TMPFILE.md5sum.diff
-            echo -n 'Do you want me to update the md5sum? [y/N] '
-            read -sk1 answer
-            echo
+            question 'Do you want me to update the md5sum? [y/N] '
             if [ "$answer" = y ] || [ "$answer" = Y ]; then
                 update_md5sum
             else
@@ -283,7 +281,7 @@ EOF
             fi
         fi
     else
-        warning "Md5sum not found, creating new."
+        warning "md5sum file not found, creating new."
         update_md5sum
     fi
 }
@@ -362,9 +360,7 @@ check_footprint()
                 echo "Footprint mismatch found:"
                 cat $FILE.footprint.diff
                 while :; do
-                    echo -n '[u]pdate footprint/[i]gnore footprint mismatch/[e]rror [u/i/e] '
-                    read -sk1 answer
-                    echo
+                    question '[u]pdate footprint/[i]gnore footprint mismatch/[e]rror [u/i/e] '
                     case $answer in
                         u|U)
                             update_footprint

@@ -50,6 +50,13 @@ case $(uname) in
         exit 1
 esac
 
+question()
+{
+    # Moves to beginning of line, does not print a newline. Add single space at the end.
+    printf "\e[;9G$* "
+    read -sk1 answer
+}
+
 info()
 {
     echo "=======> $1"
