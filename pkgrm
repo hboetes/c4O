@@ -103,7 +103,6 @@ while [ $# -gt 0 ]; do
             ;;
         -v|--version)
             version
-            exit 0
             ;;
         -h|--help)
             help

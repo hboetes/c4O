@@ -178,8 +178,7 @@ parse_options()
                 REJECTED_DIR="$2$REJECTED_DIR"
                 shift ;;
             -v|--version)
-                message " (pkgutils) $REJMERGE_VERSION"
-                exit 0 ;;
+                version ;;
             -h|--help)
                 print_help
                 exit 0 ;;

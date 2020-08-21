@@ -689,8 +689,8 @@ parse_options()
                 PKGMK_CONFFILE="$2"
                 shift ;;
             -v|--version)
-                echo "$PKGMK (pkgutils) $PKGMK_VERSION"
-                exit 0 ;;
+                version
+                ;;
             -h|--help)
                 print_help
                 exit 0 ;;
@@ -795,7 +795,6 @@ trap "interrupted" 1 2 3 15
 export PATH='/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin'
 export LC_ALL=POSIX
 
-readonly PKGMK_VERSION=5.18
 readonly PKGMK_COMMAND=$0
 readonly PKGMK=${PKGMK_COMMAND##*/}
 readonly PKGMK_ROOT="$PWD"

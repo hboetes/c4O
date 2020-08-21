@@ -80,4 +80,5 @@ message()
 version()
 {
     message "pkgutils-$pkversion"
+    exit 0
 }
