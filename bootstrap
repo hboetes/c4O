@@ -6,7 +6,7 @@ if [ $(id -u) -eq 0 ]; then
     exit 1
 fi
 
-if ! command -v zsh >& /dev/null; then
+if ! command -v zsh > /dev/null 2>&1; then
     echo "Please install zsh" >&2
     exit 1
 fi
@@ -17,7 +17,7 @@ case $(uname) in
         ;;
     OpenBSD)
         rtgrp=wheel
-        if ! command -v gtar >& /dev/null; then
+        if ! command -v gtar > /dev/null 2>&1; then
             echo "Please install gtar, like this:" >&2
             echo "  pkg_add gtar" >&2
             exit 1
