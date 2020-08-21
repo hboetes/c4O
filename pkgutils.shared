@@ -31,11 +31,11 @@ setopt shwordsplit
 # from environment.
 unset root package version release pattern FORCE UPGRADE
 
-pkversion=0.2
+readonly pkversion=0.2
 
 # Name of the script.
-n=${0##*/}
-tab=$(printf '\t')
+readonly n=${ZSH_ARGZERO##*/}
+readonly tab=$(printf '\t')
 
 case $(uname) in
     Linux)
