@@ -170,7 +170,7 @@ parse_options()
                     exit 1
                 fi
                 if [ ! -d "$2" ]; then
-                    message "root directory $2 doesn't exist or is no directory."
+                    message "root directory $2 doesn't exist or is not a directory."
                     exit 1
                 fi
                 REJMERGE_ROOT="$2"
@@ -183,7 +183,7 @@ parse_options()
                 print_help
                 exit 0 ;;
             *)
-                message "invalid option $1"
+                error "invalid option $1"
                 exit 1 ;;
         esac
         shift

@@ -72,6 +72,12 @@ error()
     echo "=======> ERROR: $1" >&2
 }
 
+error1()
+{
+    error "$1"
+    exit 1
+}
+
 message()
 {
     echo "$n: $@"

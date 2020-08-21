@@ -60,20 +60,16 @@ get_filename()
 check_pkgfile()
 {
     if [ ! "$name" ]; then
-        error "Variable \`name' not specified in $PKGMK_PKGFILE."
-        exit 1
+        error1 "Variable \`name' not specified in $PKGMK_PKGFILE."
     elif [ ! "$version" ]; then
-        error "Variable \`version' not specified in $PKGMK_PKGFILE."
-        exit 1
+        error1 "Variable \`version' not specified in $PKGMK_PKGFILE."
     elif [ ! "$release" ]; then
-        error "Variable \`release' not specified in $PKGMK_PKGFILE."
-        exit 1
+        error1 "Variable \`release' not specified in $PKGMK_PKGFILE."
     fi
     case $(type build) in
         'build is a shell function from'*) : ;;
         *)
-            error "Function \`build' not specified in $PKGMK_PKGFILE."
-            exit 1
+            error1 "Function \`build' not specified in $PKGMK_PKGFILE."
             ;;
     esac
 }
@@ -81,14 +77,11 @@ check_pkgfile()
 check_directory()
 {
     if [ ! -d $1 ]; then
-        error "Directory \`$1' does not exist."
-        exit 1
+        error1 "Directory \`$1' does not exist."
     elif [ ! -w $1 ]; then
-        error "Directory \`$1' not writable."
-        exit 1
+        error1 "Directory \`$1' not writable."
     elif [ ! -x $1 ] || [ ! -r $1 ]; then
-        error "Directory \`$1' not readable."
-        exit 1
+        error1 "Directory \`$1' not readable."
     fi
 }
 
@@ -101,7 +94,7 @@ get_git_repo()
         cd -
     else
         if ! git -C $PKGMK_SOURCE_DIR clone "$1" $name; then
-            error "Fetching git repostory \`$1' failed."
+            error1 "Fetching git repostory \`$1' failed."
         fi
         git -C $PKG_SOURCE_DIR/$name checkout ${branch:=master}
     fi
@@ -131,16 +124,14 @@ download_file()
     fi
 
     if [ $? != 0 -o ! -s $PKGMK_SOURCE_DIR/$PARTIALNAME ];then
-        error "Downloading \`$1' failed."
         rm -f $PKGMK_SOURCE_DIR/$PARTIALNAME
-        exit 1
+        error1 "Downloading \`$1' failed."
     fi
 
     # Test if file is a html file. Workaround buggy sourceforge mirrors.
     if file $PKGMK_SOURCE_DIR/$PARTIALNAME | grep -q 'HTML document text' && [ $PARTIALNAME = "$(echo $PARTIALNAME|sed -e 's|html*$||')" ]; then
-        error "Downloading \`$1' failed."
         rm -f $PKGMK_SOURCE_DIR/$PARTIALNAME
-        exit 1
+        error1 "Downloading \`$1' failed."
     fi
 
     mv $PKGMK_SOURCE_DIR/$PARTIALNAME $PKGMK_SOURCE_DIR/$FILENAME
@@ -158,14 +149,12 @@ download_source()
         LOCAL_FILENAME=$(get_filename $FILE)
         if [ ! -e $LOCAL_FILENAME ]; then
             if [ "$LOCAL_FILENAME" = "$FILE" ]; then
-                error "Source file \`$LOCAL_FILENAME' not found (can not be downloaded, URL not specified)."
-                exit 1
+                error1 "Source file \`$LOCAL_FILENAME' not found (can not be downloaded, URL not specified)."
             else
                 if [ "$PKGMK_DOWNLOAD" = yes ]; then
                     download_file $FILE
                 else
-                    error "Source file \`$LOCAL_FILENAME' not found (use option -d to download)."
-                    exit 1
+                    error1 "Source file \`$LOCAL_FILENAME' not found (use option -d to download)."
                 fi
             fi
         fi
@@ -197,8 +186,7 @@ unpack_source()
 
         if ! eval $COMMAND; then
             keep_work
-            error "Preparing source code for \`$TARGET' failed."
-            exit 1
+            error1 "Preparing source code for \`$TARGET' failed."
         fi
     done
 }
@@ -227,8 +215,7 @@ update_md5sum()
     if ! make_md5sum > $PKGMK_MD5SUM; then
         error "Can't update the footprint."
         keep_work
-        error "Building \`$TARGET' failed."
-        exit 1
+        error1 "Building \`$TARGET' failed."
     fi
 }
 
@@ -276,8 +263,7 @@ EOF
                 update_md5sum
             else
                 keep_work
-                error "Building \`$TARGET' failed."
-                exit 1
+                error1 "Building \`$TARGET' failed."
             fi
         fi
     else
@@ -344,7 +330,7 @@ check_footprint()
 {
     local FILE="$PKGMK_WORK_DIR/.tmp"
 
-    cd $PKGMK_ROOT || exit 1
+    cd $PKGMK_ROOT || exit1 "Can't access $PKGMK_ROOT"
 
     if [ -f $TARGET ]; then
         make_footprint > $FILE.footprint
@@ -370,10 +356,9 @@ check_footprint()
                             break
                             ;;
                         e|E)
-                            error "Building \`$TARGET' failed, keeping workdirectory for inspection."
                             # Make sure the $TARGET is marked as not up to date.
                             touch $PKGMK_ROOT/$PKGMK_PKGFILE
-                            exit 1
+                            error1 "Building \`$TARGET' failed, keeping workdirectory for inspection."
                             ;;
                     esac
                 done
@@ -427,8 +412,7 @@ build_package()
             strip_files
         fi
 
-        # Compressing manpage on OpenBSD doesn't work so well.
-        # compress_manpages
+        compress_manpages
 
         # Make all binaries and docfiles unwritable
         find $PKG/{,usr,usr/local}/{bin,sbin,man,share/man} -type f -print0 2> /dev/null | xargs -r0 chmod -R -w
@@ -446,8 +430,7 @@ build_package()
             fi
         fi
     elif [ "$PKGMK_KEEP_ON_ERROR" = yes ]; then
-        error "Building \`$TARGET' failed, keeping workdirectory for inspection."
-        exit 1
+        error1 "Building \`$TARGET' failed, keeping workdirectory for inspection."
     fi
 
     keep_work
@@ -458,8 +441,7 @@ build_package()
         if [ -f $TARGET ]; then
             touch -r $PKGMK_ROOT/$PKGMK_PKGFILE $TARGET 2> /dev/null
         fi
-        error "Building \`$TARGET' failed."
-        exit 1
+        error1 "Building \`$TARGET' failed."
     fi
 }
 
@@ -508,8 +490,7 @@ install_package()
         info "Installing \`$TARGET' succeeded."
         exit 0
     else
-        error "Installing \`$TARGET' failed." >&2
-        exit 1
+        error1 "Installing \`$TARGET' failed." >&2
     fi
 }
 
@@ -563,8 +544,7 @@ clean()
 update_footprint()
 {
     if [ ! -f $TARGET ]; then
-        error "Unable to update footprint. File \`$TARGET' not found."
-        exit 1
+        error1 "Unable to update footprint. File \`$TARGET' not found."
     fi
 
     make_footprint > $PKGMK_FOOTPRINT
@@ -710,9 +690,8 @@ main()
     parse_options "$@"
 
     if [ $(whoami) = root ]; then
-        error 'I know it is hard to get used to, but...'
-        error 'Now you have to build packages as user and not as root.'
-        exit 1
+        error  'I know it is hard to get used to, but...'
+        error1 'Now you have to build packages as user and not as root.'
     fi
 
     if [ "$PKGMK_RECURSIVE" = yes ]; then
@@ -722,8 +701,7 @@ main()
 
     for FILE in $PKGMK_CONFFILE $PKGMK_ROOT/$PKGMK_PKGFILE; do
         if [ ! -f $FILE ]; then
-            error "File \`$FILE' not found."
-            exit 1
+            error1 "File \`$FILE' not found."
         fi
         source $FILE
     done

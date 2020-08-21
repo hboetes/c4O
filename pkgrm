@@ -109,7 +109,8 @@ while [ $# -gt 0 ]; do
             exit 0
             ;;
         -*)
-            error 1 "Illegal option: $1"
+            error "Illegal option: $1"
+            exit 1
             ;;
         *)
             [ -n "$2" ] && error 1 "packagename must be the last argument."
