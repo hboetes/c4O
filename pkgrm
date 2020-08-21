@@ -58,6 +58,8 @@ mktempfiles()
     dirsoldpackage=$DIR/dirsoldpackage
 
     if [ -e $dbase/$name-footprint ]; then
+        # Conflate files and symlinks etc into $filesoldpackage, therefore:
+        # Everything that's not a dir is considered a file.
         awk -F '\t' '/^[^d]/ {print $3}' $dbase/$name-footprint > $filesoldpackage
         awk -F '\t' '/^d/    {print $3}' $dbase/$name-footprint > $dirsoldpackage
     fi
@@ -136,6 +138,7 @@ fi
 
 mktempfiles
 
+# Do the actual removing of files and directories.
 (
     cd ${root:=/}
     # First remove all the files that are not directories
