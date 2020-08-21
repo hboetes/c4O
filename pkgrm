@@ -150,9 +150,9 @@ mktempfiles
 fgrep -q '\.so' $dbase/$name-footprint && ldconfig -R
 
 # Auto post-uninstall infopages.
-for i in $(grep -E '^usr/local/share/info/[^-]*$' $filesoldpackage); do
+for i in $(grep -E '^usr/local/info/[^-]*$' $filesoldpackage); do
     # message "removing ${i##*/} info-entry."
-    /usr/bin/install-info --delete $root/$i /usr/local/share/info/dir
+    /usr/bin/install-info --delete $root/$i /usr/local/info/dir
 done
 
 # Auto post-uninstall for tex packages
