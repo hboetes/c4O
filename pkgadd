@@ -47,9 +47,9 @@ mktempfiles()
     dirsnewpackage=$DIR/dirsnewpackage
 
     # Put files and dirs in sepperate files.
-    tar tvzf $path_package | egrep -v "(${tab}var/package|${tab}var$)" > $TMP1
-    awk '/^[^d]/ {print $9}' $TMP1 > $filesnewpackage
-    awk '/^d/    {print $9}' $TMP1 > $dirsnewpackage
+    tar tvzf $path_package | egrep -v " var/(package|$)" > $TMP1
+    awk '/^[^d]/ {print $6}' $TMP1 > $filesnewpackage
+    awk '/^d/    {print $6}' $TMP1 > $dirsnewpackage
 
     if [ -f $dbase/$name-footprint ]; then
         awk -F '\t' '/^[^d]/ {print $3}' $dbase/$name-footprint > $filesoldpackage
@@ -371,7 +371,7 @@ for i in $(grep '^usr/share/info/[^-]*$' $filesnewpackage); do
 done
 
 # Auto post-install infopages in packages.
-for i in $(grep '^usr/local/share/info/[^-]*$' $filesnewpackage); do
+for i in $(grep '^usr/local/info/[^-]*$' $filesnewpackage); do
     # message "adding ${i##*/} info-entry."
     /usr/bin/install-info $root/$i $root/usr/local/info/dir
 done

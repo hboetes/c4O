@@ -38,10 +38,10 @@ footprint()
     mktempfiles
     # The sed statement removes the destination part of a
     # symlink. Otherwise we can't remove symlinks later on.
-    tar tzvf $1 | awk '{print $1"\t"$2"\t"$6" "$7" "$8}' | sed -e 's| -> .*||' > $TMP1 || error 'something went really wrong.'
-    # * Only remove the /var entry if it is caused by
-    #   var/package/$name-metadata
+    tar tzvf $1 | awk '{print $1"\t"$2"\t"$6" "$7" "$8}' | sed -e 's| -> .*||;s| *$||' > $TMP1 || error 'something went really wrong.'
 
+    # Only remove the /var entry if it is caused by
+    # var/package/$name-metadata
     if [ $(grep -c "${tab}var" $TMP1) -eq 3 ]; then
         grep -v "${tab}var" $TMP1
     else
@@ -53,7 +53,7 @@ installed()
 {
     if [ -n "$1" ]; then
         if [ -r "$dbase/$1-metadata" ]; then
-            . $dbase/$1-metadata
+            source $dbase/$1-metadata
             echo $name-$version-$release
         else
             error "\`$1' is not an installed package."
@@ -61,7 +61,7 @@ installed()
     else
         # This looks inefficient, but it works pretty fast.
         for i in $dbase/*-metadata; do
-            . $i
+            source $i
             echo $name-$version-$release
         done
     fi
