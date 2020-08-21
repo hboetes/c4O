@@ -12,7 +12,7 @@ case $(uname) in
         alias tar='tar --owner=root --group=root'
         ;;
     OpenBSD)
-        alias tar='gtar --owner=root --group=root'
+        alias tar='gtar --owner=root --group=wheel'
         ;;
 esac
 
