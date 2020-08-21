@@ -23,5 +23,5 @@ Print help and exit.
 .SH SEE ALSO
 pkgadd(8), pkginfo(8), pkgmk(8), rejmerge(8)
 .SH COPYRIGHT
-pkgrm (pkgutils) is Copyright (c) 2006 Han Boetes and is licensed through
+pkgrm (pkgutils) is Copyright (c) 2006-2020 Han Boetes and is licensed through
 the BSD license.

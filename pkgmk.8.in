@@ -74,10 +74,10 @@ Print help and exit.
 .B "Pkgfile"
 Package build description.
 .TP
-.B ".footprint"
-Package footprint (used for regression testing).
+.B "footprint.gz"
+Package footprint, the manifest of the package.
 .TP
-.B ".md5sum"
+.B "md5sum"
 MD5 checksum of source files.
 .TP
 .B "/etc/pkgmk.conf"
@@ -85,5 +85,5 @@ Global package make configuration.
 .SH SEE ALSO
 pkgadd(8), pkgrm(8), pkginfo(8), rejmerge(8), wget(1)
 .SH COPYRIGHT
-pkgmk (pkgutils) is Copyright (c) 2000-2004 Per Liden, 2005-2006
+pkgmk (pkgutils) is Copyright (c) 2000-2004 Per Liden, 2005-2020
 Han Boetes and is licensed under the GPLv2 License.

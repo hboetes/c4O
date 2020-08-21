@@ -37,5 +37,5 @@ Print help and exit.
 .SH SEE ALSO
 pkgadd(8), pkgrm(8), pkgmk(8), rejmerge(8)
 .SH COPYRIGHT
-pkginfo (pkgutils) is Copyright (c) 2006 Han Boetes and is licensed through
+pkginfo (pkgutils) is Copyright (c) 2006-2020 Han Boetes and is licensed through
 the BSD License.
