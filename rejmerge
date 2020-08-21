@@ -22,16 +22,10 @@
 
 source /usr/local/lib/pkgutils.shared
 
-info()
-{
-    info_n "$1"
-    echo
-}
-
 interrupted()
 {
     echo
-    info "Aborted."
+    message "Aborted."
     exit 1
 }
 
@@ -59,11 +53,11 @@ merge_menu()
     rejmerge_merge "$1" "$2" "$TMPFILE"
 
     while :; do
-        info "Merged $1"
+        message "Merged $1"
         $PAGER "$TMPFILE"
 
         if [ "$REJMERGE_MERGE_INFO" ]; then
-            info "$REJMERGE_MERGE_INFO"
+            message "$REJMERGE_MERGE_INFO"
             unset REJMERGE_MERGE_INFO
         fi
 
@@ -95,7 +89,7 @@ diff_menu()
     rejmerge_diff "$1" "$2" "$TMPFILE"
 
     while :; do
-        info "$1"
+        message "$1"
         $PAGER "$TMPFILE"
         while :; do
             question "[K]eep [U]pgrade [M]erge [D]iff [S]kip?"
@@ -129,7 +123,7 @@ diff_menu()
 file_menu()
 {
     while :; do
-        info "$1"
+        message "$1"
         file "$1" "$2"
         while :; do
             question "[K]eep [U]pgrade [D]iff [S]kip?"
@@ -158,7 +152,7 @@ file_menu()
 print_help()
 {
     cat << EOF
-usage: $REJMERGE_COMMAND [options]
+usage: $n [options]
 options:
   -r,   --root <path>         specify alternative root
   -v,   --version             print version and exit
@@ -172,11 +166,11 @@ parse_options()
         case $1 in
             -r|--root)
                 if [ -z "$2" ]; then
-                    echo "$REJMERGE_COMMAND: option $1 requires an argument"
+                    message "option $1 requires an argument"
                     exit 1
                 fi
                 if [ ! -d "$2" ]; then
-                    echo "$REJMERGE_COMMAND: root directory $2 doesn't exist or is no directory."
+                    message "root directory $2 doesn't exist or is no directory."
                     exit 1
                 fi
                 REJMERGE_ROOT="$2"
@@ -184,20 +178,20 @@ parse_options()
                 REJECTED_DIR="$2$REJECTED_DIR"
                 shift ;;
             -v|--version)
-                echo "$REJMERGE_COMMAND (pkgutils) $REJMERGE_VERSION"
+                message " (pkgutils) $REJMERGE_VERSION"
                 exit 0 ;;
             -h|--help)
                 print_help
                 exit 0 ;;
             *)
-                echo "$REJMERGE_COMMAND: invalid option $1"
+                message "invalid option $1"
                 exit 1 ;;
         esac
         shift
     done
 
     if [ ! -d "$REJECTED_DIR" ]; then
-        echo "$REJMERGE_COMMAND: $REJECTED_DIR not found"
+        message "$REJECTED_DIR not found"
         exit 1
     fi
 }
@@ -207,16 +201,16 @@ main()
     parse_options "$@"
 
     if [ $(id -u) -eq 0 ]; then
-        echo "$REJMERGE_COMMAND: don't merge rejected files as root"
+        message "don't run $n as root"
         exit 1
     fi
 
     # Read configuration
     if [ -f "$REJMERGE_CONF" ]; then
-        . "$REJMERGE_CONF"
+        source "$REJMERGE_CONF"
     fi
 
-    REJECTED_FILES_FOUND=no
+    local REJECTED_FILES_FOUND=no
 
     # Check regular files
     for REJECTED_FILE in $(find $REJECTED_DIR -type f); do
@@ -264,7 +258,6 @@ zshexit()
 export LC_ALL=POSIX
 
 readonly REJMERGE_VERSION="0.1"
-readonly REJMERGE_COMMAND="${0##*/}"
 unset REJMERGE_ROOT
 REJMERGE_CONF="/etc/rejmerge.conf"
 REJECTED_DIR="/var/package/rejects"
