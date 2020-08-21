@@ -3,6 +3,7 @@
 #  rejmerge (pkgutils)
 #
 #  Copyright (c) 2005 Per Liden
+#  Copyright (c) 2006-2020 Han Boetes
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -158,6 +159,7 @@ options:
   -v,   --version             print version and exit
   -h,   --help                print help and exit
 EOF
+    exit 0
 }
 
 parse_options()
@@ -180,11 +182,9 @@ parse_options()
             -v|--version)
                 version ;;
             -h|--help)
-                print_help
-                exit 0 ;;
+                print_help ;;
             *)
-                error "invalid option $1"
-                exit 1 ;;
+                error1 "invalid option $1";;
         esac
         shift
     done
@@ -256,7 +256,6 @@ zshexit()
 
 export LC_ALL=POSIX
 
-readonly REJMERGE_VERSION="0.1"
 unset REJMERGE_ROOT
 REJMERGE_CONF="/etc/rejmerge.conf"
 REJECTED_DIR="/var/package/rejects"
