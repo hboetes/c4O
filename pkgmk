@@ -415,7 +415,7 @@ build_package()
         compress_manpages
 
         # Make all binaries and docfiles unwritable
-        find $PKG/{,usr,usr/local}/{bin,sbin,man,share/man} -type f -print0 2> /dev/null | xargs -r0 chmod -R -w
+        find $PKG/{,usr,usr/local}/{bin,sbin,man,share/man} -type f -print0 2> /dev/null | xargs -r0 chmod -w
 
         info "Build result:"
         wrap -g $PKGMK_ROOT/$PKGMK_PKGFILE $PKGMK_PACKAGE_DIR
