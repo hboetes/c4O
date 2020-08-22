@@ -34,10 +34,10 @@ build()
     install -m 755 $SRC/pkgadd             $PKG/usr/local/bin
     install -m 755 $SRC/pkgrm              $PKG/usr/local/bin
     install -m 755 $SRC/pkginfo            $PKG/usr/local/bin
-    install -m 755 $SRC/pkgutils.shared    $PKG/usr/local/lib
+    install -m 644 $SRC/pkgutils.shared    $PKG/usr/local/lib
     # manpages
     install -d $PKG/usr/local/man/man8
-    for i in *.[0-9].in; do
+    for i in *.8.in; do
         sed -e "s|#VERSION#|$version|" $i > $PKG/usr/local/man/man8/${i%.in}
     done
     # configs

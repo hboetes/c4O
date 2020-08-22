@@ -1,5 +1,6 @@
 #!/bin/sh -e
 
+pkversion=$(awk -F'=' '/pkversion/ {print $2}' pkgutils.shared)
 
 if [ $(id -u) -eq 0 ]; then
     echo "I'll ask you when I think I need root permissions, Ok?" >&2
@@ -30,7 +31,7 @@ sudo chown -R ${USER}:$rtgrp /usr/cruxports
 
 echo installing pkgutils
 sudo install -m 755 -d                    /usr/local/lib
-sudo install -m 755 pkgutils.shared       /usr/local/lib
+sudo install -m 644 pkgutils.shared       /usr/local/lib
 sudo install -m 755 -d                    /usr/local/bin
 sudo install -m 755 pkgadd                /usr/local/bin
 sudo install -m 755 pkgrm                 /usr/local/bin
@@ -46,15 +47,33 @@ sudo install -d -g $rtgrp -o $USER /usr/pkgmk/source /usr/pkgmk/package /usr/pkg
 echo "Creating database directory."
 sudo install -d /var/package/rejects
 
+# Don't overwrite existing config files.
 [ -e /etc/pkgadd.conf ] || sudo install -m 644 pkgadd.conf           /etc/pkgadd.conf
 [ -e /etc/pkgmk.conf ]  || sudo install -m 644 pkgmk.conf            /etc/pkgmk.conf
 
 echo 'building the first port! pkgutils!'
 pkgmk -f
-echo 'Adding it...'
-sudo pkgadd -f /usr/pkgmk/package/pkgutils_*.pkg.tar.gz
+
+if pkginfo -i pkgutils; then
+    echo 'Updating pkgutils'
+    sudo pkgadd -u /usr/pkgmk/package/pkgutils_$pkversion-1.pkg.tar.gz
+else
+    echo 'Installing pkgutils for the first time.'
+    sudo pkgadd -i /usr/pkgmk/package/pkgutils_$pkversion-1.pkg.tar.gz
+fi
+
 echo "Setting the right permissions on the builddir."
 sudo chown    ${USER}:$rtgrp /usr/pkgmk/*
 
-echo "Congratulations, you have got cruxports installed."
-echo "And you won't even have to reboot. ;-)"
+if [ ! -d /usr/cruxports/core/pkgutils/.git ]; then
+    echo 'Installing the source code repo at the proper location.'
+    mkdir -p /usr/cruxports/core
+    git clone git@github.com:hboetes/c4O.git -C /usr/cruxports/core/pkgutils
+fi
+
+cat << EOF
+Congratulations, you have got cruxports installed. And you didn't even have to reboot. ;-)
+For the next update of cruxports you can run:
+  % cd /usr/cruxports/core/pkgutils
+  % pkgmk -u
+EOF
