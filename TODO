@@ -1,3 +1,4 @@
   * Check code for the TODO keyword.
   * show what sudo does, in yellow or so. make doas work as well.
-
+  * create a self-contained uninstaller script, so you won't need pkgutils at all to use its packages.
+  * gradual cleanup options - ie only old source packages, only source packages, only packages, etc.
