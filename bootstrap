@@ -8,7 +8,7 @@ if [ $(id -u) -eq 0 ]; then
 fi
 
 if ! command -v zsh > /dev/null 2>&1; then
-    echo "Please install zsh" >&2
+    echo "Please install zsh." >&2
     exit 1
 fi
 
@@ -25,6 +25,16 @@ case $(uname) in
         fi
         ;;
 esac
+
+# Add support for doas
+if ! command -v sudo > /dev/null 2>&1; then
+    if command -v doas > /dev/null 2>&1; then
+        alias sudo=doas
+    else
+        echo "Please install sudo." >&2
+        exit 1
+    fi
+fi
 
 echo "Setting the right permissions for the portsdir."
 sudo chown -R ${USER}:$rtgrp /usr/cruxports
