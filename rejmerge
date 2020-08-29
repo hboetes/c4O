@@ -26,8 +26,7 @@ source /usr/local/lib/pkgutils.shared
 interrupted()
 {
     echo
-    message "Aborted."
-    exit 1
+    error1 "Aborted."
 }
 
 atexit()
@@ -168,12 +167,10 @@ parse_options()
         case $1 in
             -r|--root)
                 if [ -z "$2" ]; then
-                    message "option $1 requires an argument"
-                    exit 1
+                    error1 "option $1 requires an argument"
                 fi
                 if [ ! -d "$2" ]; then
-                    message "root directory $2 doesn't exist or is not a directory."
-                    exit 1
+                    error1 "root directory $2 doesn't exist or is not a directory."
                 fi
                 REJMERGE_ROOT="$2"
                 REJMERGE_CONF="$2$REJMERGE_CONF"
@@ -190,8 +187,7 @@ parse_options()
     done
 
     if [ ! -d "$REJECTED_DIR" ]; then
-        message "$REJECTED_DIR not found"
-        exit 1
+        error1 "$REJECTED_DIR not found"
     fi
 }
 
@@ -200,8 +196,7 @@ main()
     parse_options "$@"
 
     if [ $(id -u) -eq 0 ]; then
-        message "don't run $n as root"
-        exit 1
+        error1 "don't run $n as root"
     fi
 
     # Read configuration
@@ -261,6 +256,6 @@ REJMERGE_CONF="/etc/rejmerge.conf"
 REJECTED_DIR="/var/package/rejects"
 PAGER=more
 EDITOR=${EDITOR:-mg}
-TMPFILE=$(mktemp) || exit 1
+TMPFILE=$(mktemp) || error1 "Can't create a tempfile (filesystem full, probably.)"
 
 main "$@"
