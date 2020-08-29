@@ -33,6 +33,17 @@ unset root package version release pattern FORCE UPGRADE
 
 readonly pkversion=0.2
 
+# Add support for doas, check if sudo is available.
+if ! command -v sudo > /dev/null 2>&1; then
+    if command -v doas > /dev/null 2>&1; then
+        alias sudo=doas
+    else
+        echo "Please install sudo." >&2
+        exit 1
+    fi
+fi
+
+
 # Name of the script.
 readonly n=${ZSH_ARGZERO##*/}
 readonly tab=$(printf '\t')
