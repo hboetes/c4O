@@ -521,8 +521,12 @@ clean()
 
     for FILE in $source; do
         if [[ "$FILE" != "${FILE%.git}" ]]; then
-            info "Removing git clone directory \`$PKGMK_SOURCE_DIR/$name'"
-            rm -rf ${PKGMK_SOURCE_DIR:?}/$name
+            if [[ -d ${PKGMK_SOURCE_DIR:?}/$name ]]; then
+                info "Removing git clone directory \`$PKGMK_SOURCE_DIR/$name'"
+                rm -rf ${PKGMK_SOURCE_DIR:?}/$name
+            else
+                info "git clone directory \`$PKGMK_SOURCE_DIR/$name' has already been removed."
+            fi
         fi
         LOCAL_FILENAME=$(get_filename $FILE)
         if [ -e "$LOCAL_FILENAME" ] && [ "$LOCAL_FILENAME" != "$FILE" ]; then
