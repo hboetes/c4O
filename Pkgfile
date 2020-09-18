@@ -14,7 +14,6 @@ source=(
     pkginfo.8.in
     pkgmk
     pkgmk.8.in
-    pkgmk.buildwrapper
     pkgmk.conf
     pkgrm
     pkgrm.8.in
@@ -27,8 +26,7 @@ source=(
 build()
 {
     # binaries
-    install -d $PKG/usr/local/bin $PKG/usr/local/libexec $PKG/usr/local/lib
-    install -m 755 $SRC/pkgmk.buildwrapper $PKG/usr/local/libexec
+    install -d $PKG/usr/local/bin $PKG/usr/local/lib
     install -m 755 $SRC/pkgmk              $PKG/usr/local/bin
     install -m 755 $SRC/rejmerge           $PKG/usr/local/bin
     install -m 755 $SRC/pkgadd             $PKG/usr/local/bin
