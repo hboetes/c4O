@@ -96,7 +96,7 @@ get_git_repo()
         if ! git -C $PKGMK_SOURCE_DIR clone "$1" $name; then
             error1 "Fetching git repostory \`$1' failed."
         fi
-        git -C $PKG_SOURCE_DIR/$name checkout ${branch:=master}
+        git -C $PKGMK_SOURCE_DIR/$name checkout ${branch:=master}
     fi
 }
 
