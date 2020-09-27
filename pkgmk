@@ -174,7 +174,7 @@ unpack_source()
         LOCAL_FILENAME=$(get_filename $FILE)
         case $LOCAL_FILENAME in
             *.tar.gz|*.tar.Z|*.tgz)
-                COMMAND="tar xzf $LOCAL_FILENAME -C $SRC" ;;
+                COMMAND="tar -xzf $LOCAL_FILENAME -C $SRC" ;;
             *tar.xz)
                 COMMAND="xzcat $LOCAL_FILENAME |tar xf - -C $SRC" ;;
             *.tar.bz2)
