@@ -94,7 +94,7 @@ get_git_repo()
 {
     if cd $PKGMK_SOURCE_DIR/$name > /dev/null 2>&1; then
         git fetch
-        git checkout ${branch:=master}
+        git checkout "${branch:=master}"
         git pull
         cd -
     else
