@@ -4,8 +4,7 @@ and C++, the Pkgfiles which define how a package  should  be  build  are
 nothing but simple shell-scripts.
 
 Cruxports for OpenBSD is a port/rewrite  of  the  CRUX  ports-system  to
-OpenBSD, and is completely written in sh, except  for  a  simple  parser
-written in C.
+OpenBSD, and is completely written in shell-script.
 
 Now I hear you say: "What's wrong with the normal ports?" Well...  wrong
 is a big word. It's just a matter of personal preference  I  think.  But
