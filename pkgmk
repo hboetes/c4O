@@ -718,6 +718,21 @@ parse_options()
     done
 }
 
+remove_perlcrap()
+{
+    # Remove perlcrap
+    find $PKG \
+        \( \
+        -name '.packlist' -or \
+        -name '*.bs' -or \
+        -name autosplit.ix -or \
+        -name perllocal.pod \
+        \) \
+        -delete
+    # Remove empty directories, ignore return code
+    find $PKG -depth -type d -delete > /dev/null 2>&1 || :
+}
+
 main()
 {
     local FILE TARGET
