@@ -176,9 +176,9 @@ unpack_source()
             *.tar.gz|*.tar.Z|*.tgz)
                 COMMAND="tar -xzf $LOCAL_FILENAME -C $SRC" ;;
             *tar.xz)
-                COMMAND="xzcat $LOCAL_FILENAME |tar xf - -C $SRC" ;;
+                COMMAND="xzcat $LOCAL_FILENAME |tar -xf - -C $SRC" ;;
             *.tar.bz2)
-                COMMAND="bzcat $LOCAL_FILENAME | tar xf - -C $SRC" ;;
+                COMMAND="bzcat $LOCAL_FILENAME | tar -xf - -C $SRC" ;;
             *.zip)
                 COMMAND="unzip -qq -o -d $SRC $LOCAL_FILENAME" ;;
             *.git)
